@@ -1,0 +1,33 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+.netlify
+.vercel
+.lighthouseci
+
+# Playwright
+test-results
+playwright-report
+
+# Font files downloaded by scripts/build-wordmark.mjs. Only the generated wordmark is committed.
+scripts/.cache
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.sw?
+
+# Leftover run output and caches gathered by the clean-up, kept only until someone deletes them
+CLEAN-UP/generated
+
+# Built by `npm run build:viewer` (the family page template) before every build
+dist-viewer
+public/viewer-template.html
