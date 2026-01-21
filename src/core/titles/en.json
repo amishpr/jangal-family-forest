@@ -1,0 +1,100 @@
+{
+  "format": "jangal-titles",
+  "version": 1,
+  "lang": "en",
+  "name": "English",
+  "groups": [
+    {
+      "name": "Parents and children",
+      "titles": {
+        "father": "Father",
+        "mother": "Mother",
+        "stepFather": "Stepfather",
+        "stepMother": "Stepmother",
+        "husband": "Husband",
+        "wife": "Wife",
+        "son": "Son",
+        "daughter": "Daughter",
+        "sonWife": "Son's wife",
+        "daughterHusband": "Daughter's husband"
+      }
+    },
+    {
+      "name": "Brothers, sisters and cousins",
+      "titles": {
+        "brother": "Brother or male cousin",
+        "olderBrother": "Older brother or male cousin",
+        "youngerBrother": "Younger brother or male cousin",
+        "sister": "Sister or female cousin",
+        "olderSister": "Older sister or female cousin",
+        "youngerSister": "Younger sister or female cousin",
+        "brotherWife": "Brother's wife",
+        "olderSisterHusband": "Older sister's husband",
+        "youngerSisterHusband": "Younger sister's husband",
+        "brotherSon": "Brother's son",
+        "brotherDaughter": "Brother's daughter",
+        "sisterSon": "Sister's son",
+        "sisterDaughter": "Sister's daughter"
+      }
+    },
+    {
+      "name": "Father's side",
+      "titles": {
+        "fatherYoungerBrother": "Father's younger brother or male cousin",
+        "fatherYoungerBrotherWife": "Father's younger brother's wife",
+        "fatherOlderBrother": "Father's older brother",
+        "fatherOlderBrotherWife": "Father's older brother's wife",
+        "fatherEldestBrother": "Father's eldest brother, of two or more older",
+        "fatherEldestBrotherWife": "Father's eldest brother's wife",
+        "fatherSister": "Father's sister or female cousin",
+        "fatherSisterHusband": "Father's sister's husband"
+      }
+    },
+    {
+      "name": "Mother's side",
+      "titles": {
+        "motherBrother": "Mother's brother or male cousin",
+        "motherBrotherWife": "Mother's brother's wife",
+        "motherSister": "Mother's sister or female cousin",
+        "motherSisterHusband": "Mother's sister's husband"
+      }
+    },
+    {
+      "name": "Grandparents and grandchildren",
+      "titles": {
+        "paternalGrandfather": "Father's father",
+        "paternalGrandmother": "Father's mother",
+        "maternalGrandfather": "Mother's father",
+        "maternalGrandmother": "Mother's mother",
+        "maternalGrandfatherBrother": "Mother's father's brother",
+        "maternalGrandmotherSister": "Mother's mother's sister",
+        "paternalGreatGrandfather": "Father's grandfather",
+        "paternalGreatGrandmother": "Father's grandmother",
+        "maternalGreatGrandfather": "Mother's grandfather",
+        "maternalGreatGrandmother": "Mother's grandmother",
+        "sonSon": "Son's son",
+        "sonDaughter": "Son's daughter",
+        "daughterSon": "Daughter's son",
+        "daughterDaughter": "Daughter's daughter"
+      }
+    },
+    {
+      "name": "In-laws",
+      "titles": {
+        "spouseFather": "Wife's or husband's father",
+        "spouseMother": "Wife's or husband's mother",
+        "wifeYoungerSister": "Wife's younger sister",
+        "wifeOlderSister": "Wife's older sister",
+        "wifeBrother": "Wife's brother",
+        "wifeSisterHusband": "Wife's sister's husband",
+        "wifeBrotherWife": "Wife's brother's wife",
+        "husbandYoungerBrother": "Husband's younger brother",
+        "husbandYoungerBrotherWife": "Husband's younger brother's wife",
+        "husbandOlderBrother": "Husband's older brother",
+        "husbandOlderBrotherWife": "Husband's older brother's wife",
+        "husbandSister": "Husband's sister",
+        "husbandSisterHusband": "Husband's sister's husband"
+      }
+    }
+  ]
+}

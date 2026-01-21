@@ -1,0 +1,235 @@
+{
+  "format": "jangal-titles",
+  "version": 1,
+  "lang": "gu",
+  "name": "Gujarati",
+  "nativeName": "ગુજરાતી",
+  "words": {
+    "father": [
+      "Pappa",
+      "Papa",
+      "Bawa",
+      "Bapuji"
+    ],
+    "mother": [
+      "Ba",
+      "Mummy",
+      "Mumma",
+      "Maamajee"
+    ],
+    "husband": [
+      "Pati",
+      "Var",
+      "Dhani"
+    ],
+    "wife": [
+      "Patni",
+      "Bairi"
+    ],
+    "son": [
+      "Babo",
+      "Chokro",
+      "Dikro",
+      "Lalo"
+    ],
+    "daughter": [
+      "Babi",
+      "Chokri",
+      "Dikri",
+      "Lali"
+    ],
+    "sonWife": [
+      "Vahu",
+      "Putravadhu"
+    ],
+    "daughterHusband": [
+      "Jamai"
+    ],
+    "brother": [
+      "Bhai"
+    ],
+    "youngerBrother": [
+      "Bhaio",
+      "Bhai"
+    ],
+    "sister": [
+      "Ben"
+    ],
+    "olderSister": [
+      "Didi",
+      "Ben"
+    ],
+    "brotherWife": [
+      "Bhabhi"
+    ],
+    "olderSisterHusband": [
+      "Jijaji",
+      "Kumaar"
+    ],
+    "youngerSisterHusband": [
+      "Banevi",
+      "Kumaar"
+    ],
+    "brotherSon": [
+      "Bhatrijo"
+    ],
+    "brotherDaughter": [
+      "Bhatriji"
+    ],
+    "sisterSon": [
+      "Bhanej",
+      "Bhanjo",
+      "Bhaniyo"
+    ],
+    "sisterDaughter": [
+      "Bhanej",
+      "Bhanji",
+      "Bhani"
+    ],
+    "fatherYoungerBrother": [
+      "Kaka",
+      "Chacha"
+    ],
+    "fatherYoungerBrotherWife": [
+      "Kaki",
+      "Chachi"
+    ],
+    "fatherOlderBrother": [
+      "Bapa",
+      "Mhota Pappa",
+      "Mhota Bawa",
+      "Ji Dada"
+    ],
+    "fatherOlderBrotherWife": [
+      "Mhoti",
+      "Mhoti Mummy",
+      "Mhoti Ma",
+      "Mhoti Ba",
+      "Bhabu"
+    ],
+    "fatherEldestBrother": [
+      "Mota Kaka",
+      "Mhota Papa",
+      "Mhota Bawa"
+    ],
+    "fatherEldestBrotherWife": [
+      "Mhoti",
+      "Mhoti Mummy",
+      "Mhoti Ma",
+      "Mhoti Ba",
+      "Bhabu"
+    ],
+    "fatherSister": [
+      "Foi",
+      "Fui",
+      "Fai",
+      "Fia",
+      "Faiba",
+      "Foiba"
+    ],
+    "fatherSisterHusband": [
+      "Fua",
+      "Fuji"
+    ],
+    "motherBrother": [
+      "Mama"
+    ],
+    "motherBrotherWife": [
+      "Mami"
+    ],
+    "motherSister": [
+      "Masi",
+      "Mahee"
+    ],
+    "motherSisterHusband": [
+      "Masa",
+      "Mahaji"
+    ],
+    "paternalGrandfather": [
+      "Dada",
+      "Dada Bawa",
+      "Bapuji"
+    ],
+    "paternalGrandmother": [
+      "Dadi",
+      "Dadi Ma",
+      "Ba"
+    ],
+    "maternalGrandfather": [
+      "Nanabapa",
+      "Nana Bawa",
+      "Nana",
+      "Dada"
+    ],
+    "maternalGrandmother": [
+      "Nanima",
+      "Ba",
+      "Nani"
+    ],
+    "maternalGrandfatherBrother": [
+      "Nana",
+      "Nana Bawa"
+    ],
+    "maternalGrandmotherSister": [
+      "Nani"
+    ],
+    "sonSon": [
+      "Pautra",
+      "Potro"
+    ],
+    "sonDaughter": [
+      "Pautri",
+      "Potri"
+    ],
+    "daughterSon": [
+      "Dohitro",
+      "Dohitra"
+    ],
+    "daughterDaughter": [
+      "Dohitri"
+    ],
+    "spouseFather": [
+      "Sasra",
+      "Hahara"
+    ],
+    "spouseMother": [
+      "Sasu",
+      "Hahu"
+    ],
+    "wifeYoungerSister": [
+      "Saali"
+    ],
+    "wifeOlderSister": [
+      "Patla Sasu",
+      "Patla Hahu"
+    ],
+    "wifeBrother": [
+      "Saalo"
+    ],
+    "wifeSisterHusband": [
+      "Sadhu Bhai"
+    ],
+    "wifeBrotherWife": [
+      "Saadhotri",
+      "Sadaveli"
+    ],
+    "husbandYoungerBrother": [
+      "De-ar"
+    ],
+    "husbandYoungerBrotherWife": [
+      "Derani"
+    ],
+    "husbandOlderBrother": [
+      "Jeth"
+    ],
+    "husbandOlderBrotherWife": [
+      "Jethani"
+    ],
+    "husbandSister": [
+      "Nanand"
+    ],
+    "husbandSisterHusband": [
+      "Nandoi"
+    ]
+  }
+}

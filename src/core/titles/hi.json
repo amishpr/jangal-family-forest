@@ -1,0 +1,231 @@
+{
+  "format": "jangal-titles",
+  "version": 1,
+  "lang": "hi",
+  "name": "Hindi",
+  "nativeName": "हिन्दी",
+  "words": {
+    "father": [
+      "Papa",
+      "Pita",
+      "Baba",
+      "Bapu",
+      "Abba",
+      "Pitashri"
+    ],
+    "mother": [
+      "Maa",
+      "Mummy",
+      "Mata",
+      "Amma",
+      "Ammi",
+      "Matashree"
+    ],
+    "stepFather": [
+      "Sautele Pita"
+    ],
+    "stepMother": [
+      "Sauteli Maa",
+      "Vimata"
+    ],
+    "husband": [
+      "Pati",
+      "Shohar"
+    ],
+    "wife": [
+      "Patni",
+      "Biwi"
+    ],
+    "son": [
+      "Beta",
+      "Putra"
+    ],
+    "daughter": [
+      "Beti",
+      "Putri"
+    ],
+    "sonWife": [
+      "Bahu",
+      "Vadhu"
+    ],
+    "daughterHusband": [
+      "Damad",
+      "Jamai"
+    ],
+    "brother": [
+      "Bhai"
+    ],
+    "olderBrother": [
+      "Bhaiya",
+      "Bada Bhai",
+      "Bhai",
+      "Dada"
+    ],
+    "youngerBrother": [
+      "Bhai",
+      "Chhota Bhai"
+    ],
+    "sister": [
+      "Bahan",
+      "Behen"
+    ],
+    "olderSister": [
+      "Didi",
+      "Jiji",
+      "Badi Bahan"
+    ],
+    "youngerSister": [
+      "Bahan",
+      "Chhoti Bahan"
+    ],
+    "brotherWife": [
+      "Bhabhi",
+      "Bhauji"
+    ],
+    "olderSisterHusband": [
+      "Jija",
+      "Jijaji"
+    ],
+    "youngerSisterHusband": [
+      "Bahnoi"
+    ],
+    "brotherSon": [
+      "Bhatija"
+    ],
+    "brotherDaughter": [
+      "Bhatiji"
+    ],
+    "sisterSon": [
+      "Bhanja"
+    ],
+    "sisterDaughter": [
+      "Bhanji"
+    ],
+    "fatherYoungerBrother": [
+      "Chacha",
+      "Kaka",
+      "Chhote Papa"
+    ],
+    "fatherYoungerBrotherWife": [
+      "Chachi",
+      "Kaki",
+      "Chhoti Mummy"
+    ],
+    "fatherOlderBrother": [
+      "Tau",
+      "Taya",
+      "Bade Papa"
+    ],
+    "fatherOlderBrotherWife": [
+      "Tai",
+      "Badi Mummy"
+    ],
+    "fatherSister": [
+      "Bua",
+      "Phuphi",
+      "Bhua"
+    ],
+    "fatherSisterHusband": [
+      "Phupha",
+      "Phupho"
+    ],
+    "motherBrother": [
+      "Mama",
+      "Mamu"
+    ],
+    "motherBrotherWife": [
+      "Mami",
+      "Mumani"
+    ],
+    "motherSister": [
+      "Mausi",
+      "Masi",
+      "Khala"
+    ],
+    "motherSisterHusband": [
+      "Mausa",
+      "Masa",
+      "Khalu"
+    ],
+    "paternalGrandfather": [
+      "Dada",
+      "Baba",
+      "Aaja"
+    ],
+    "paternalGrandmother": [
+      "Dadi",
+      "Aaji"
+    ],
+    "maternalGrandfather": [
+      "Nana"
+    ],
+    "maternalGrandmother": [
+      "Nani"
+    ],
+    "paternalGreatGrandfather": [
+      "Pardada"
+    ],
+    "paternalGreatGrandmother": [
+      "Pardadi"
+    ],
+    "maternalGreatGrandfather": [
+      "Parnana"
+    ],
+    "maternalGreatGrandmother": [
+      "Parnani"
+    ],
+    "sonSon": [
+      "Pota"
+    ],
+    "sonDaughter": [
+      "Poti"
+    ],
+    "daughterSon": [
+      "Nati",
+      "Navasa"
+    ],
+    "daughterDaughter": [
+      "Natin",
+      "Navasi"
+    ],
+    "spouseFather": [
+      "Sasur"
+    ],
+    "spouseMother": [
+      "Saas"
+    ],
+    "wifeYoungerSister": [
+      "Sali"
+    ],
+    "wifeOlderSister": [
+      "Sali"
+    ],
+    "wifeBrother": [
+      "Sala"
+    ],
+    "wifeSisterHusband": [
+      "Sarhu"
+    ],
+    "wifeBrotherWife": [
+      "Salhaj"
+    ],
+    "husbandYoungerBrother": [
+      "Devar"
+    ],
+    "husbandYoungerBrotherWife": [
+      "Devrani"
+    ],
+    "husbandOlderBrother": [
+      "Jeth"
+    ],
+    "husbandOlderBrotherWife": [
+      "Jethani"
+    ],
+    "husbandSister": [
+      "Nanad"
+    ],
+    "husbandSisterHusband": [
+      "Nandoi"
+    ]
+  }
+}
