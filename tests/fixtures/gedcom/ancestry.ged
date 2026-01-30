@@ -1,0 +1,70 @@
+0 HEAD
+1 SOUR Ancestry.com Family Trees
+2 VERS (2010.3)
+2 NAME Ancestry.com Member Trees
+1 DEST GED55
+1 DATE 30 Sep 2026
+1 CHAR UTF-8
+1 FILE Alvarez Family Tree.ged
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @I1@ INDI
+1 NAME Tomás /Alvarez/
+2 GIVN Tomás
+2 SURN Alvarez
+1 SEX M
+1 BIRT
+2 DATE 14 May 1943
+2 PLAC Sevilla, Andalucía, Spain
+1 DEAT
+2 DATE 3 FEB 2015
+2 PLAC San Antonio, Bexar, Texas, USA
+1 OCCU Hardware store owner
+1 RESI
+2 PLAC San Antonio, Texas
+1 FAMS @F1@
+1 OBJE
+2 FILE C:\Users\helen\Pictures\tomas-1965.jpg
+0 @I2@ INDI
+1 NAME Helen /Whitfield/
+1 NAME Helen /Alvarez/
+2 TYPE married
+1 SEX F
+1 BIRT
+2 DATE ABT 1946
+2 PLAC San Antonio, Texas
+1 FAMS @F1@
+1 NOTE @N1@
+0 @I3@ INDI
+1 NAME Marisol /Alvarez/
+1 SEX F
+1 BIRT
+2 DATE APR 1966
+1 FAMC @F1@
+0 @I4@ INDI
+1 NAME Dev /Raman/
+1 SEX M
+1 BIRT
+2 DATE 2009
+1 FAMC @F1@
+0 @I5@ INDI
+1 NAME /Unknown/
+1 SEX U
+0 @F1@ FAM
+1 HUSB @I1@
+1 WIFE @I2@
+1 CHIL @I3@
+2 _FREL Natural
+2 _MREL Natural
+1 CHIL @I4@
+2 _FREL Adopted
+2 _MREL Adopted
+1 MARR
+2 DATE 1965
+2 PLAC San Antonio, Texas
+0 @N1@ NOTE Taught third grade for 31 years.
+1 CONT Still hosts Sunday lunch.
+0 @S1@ SOUR
+1 TITL 1950 United States Federal Census
+0 TRLR

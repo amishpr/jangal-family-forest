@@ -1,0 +1,36 @@
+0 HEAD
+1 SOUR FamilySearch
+1 CHAR UTF-8
+1 GEDC
+2 VERS 5.5
+0 @P1@ INDI
+1 NAME Raghav /Raman/
+1 SEX M
+1 BIRT
+2 DATE 23 January 1941
+2 PLAC Chennai, India
+1 FAMS @F2@
+0 @P2@ INDI
+1 NAME Lakshmi /Iyer/
+1 SEX F
+1 DEAT Y
+1 FAMS @F2@
+0 @P3@ INDI
+1 NAME Arjun /Raman/
+1 SEX M
+1 BIRT
+2 DATE BET 1972 AND 1974
+1 FAMC @F2@
+2 PEDI birth
+0 @P4@ INDI
+1 NAME Priya /Raman/
+1 SEX F
+1 FAMC @F2@
+0 @F2@ FAM
+1 HUSB @P1@
+1 WIFE @P2@
+1 CHIL @P3@
+1 CHIL @P4@
+1 DIV
+2 DATE 1990
+0 TRLR
