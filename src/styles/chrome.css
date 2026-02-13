@@ -1,0 +1,478 @@
+/* The chrome around the canvas (PLAN 7): the brand pill top left, tabs top center, the button
+   groups top right, and the dock at the bottom. Every piece sits on a solid ledge shadow. */
+@layer components {
+  .brand {
+    position: fixed;
+    z-index: 12;
+    top: 16px;
+    left: 16px;
+    display: grid;
+    gap: 6px;
+    max-width: min(460px, calc(100vw - 32px));
+    padding: 10px 14px 10px 16px;
+    background: var(--tile);
+    border-radius: 22px;
+    box-shadow: 0 4px 0 var(--ledge), var(--soft);
+  }
+  .brand .row1 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 8px;
+  }
+  /* In the sample family the top row holds the tag and "Start your own tree", so the subtitle
+     makes room for them */
+  .brand.sample .row1 .sub {
+    display: none;
+  }
+  .brand .wm {
+    font-size: 20px;
+  }
+  .brand .sub {
+    font-size: 13px;
+  }
+  .brand.editing {
+    z-index: 30;
+  }
+  .brand.viewer .titleblock {
+    padding-top: 0;
+    border-top: 0;
+  }
+  .brand.editing .legend {
+    display: none;
+  }
+  .wmbtn {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 0 4px 0 0;
+    border: 0;
+    background: none;
+    border-radius: 12px;
+    text-align: left;
+  }
+  .wmbtn:hover .sub {
+    color: var(--ink-2);
+  }
+
+  /* The tree's own title: the main line of the pill (PLAN 6.12) */
+  .titleblock {
+    display: grid;
+    justify-items: start;
+    gap: 1px;
+    min-width: 0;
+    padding-top: 7px;
+    border-top: 2px solid var(--mint-2);
+  }
+  .ttl {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: min(420px, calc(100vw - 64px));
+    padding: 0 2px 0 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    text-align: left;
+    border-radius: 8px;
+  }
+  .ttl-text {
+    font: 800 22px/1.15 var(--font-display);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ttl svg {
+    flex: none;
+    font-size: 15px;
+    color: var(--ink-3);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .ttl:hover svg,
+  .ttl:focus-visible svg {
+    opacity: 1;
+  }
+  @media (hover: none) {
+    .ttl svg {
+      opacity: 1;
+    }
+  }
+  .ttl-sub {
+    max-width: min(420px, calc(100vw - 64px));
+    font-weight: 600;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ttl-stats {
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .ttl-form {
+    display: grid;
+    gap: 6px;
+    width: min(400px, calc(100vw - 64px));
+  }
+  .ttl-in,
+  .sub-in {
+    width: 100%;
+    min-width: 0;
+    border: 2px solid var(--field);
+    border-radius: 12px;
+    background: var(--tile);
+    padding: 0 10px;
+  }
+  .ttl-in {
+    height: 40px;
+    font: 800 19px var(--font-display);
+    letter-spacing: -0.01em;
+  }
+  .sub-in {
+    height: 34px;
+    font-weight: 600;
+    font-size: 13.5px;
+  }
+  .ttl-in:focus,
+  .sub-in:focus {
+    outline: none;
+    border-color: var(--leaf);
+  }
+  .ttl-form .check {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-2);
+    margin: 2px 0;
+  }
+  .ttl-foot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .ttl-foot .auto {
+    flex: 1 1 170px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-3);
+    line-height: 1.35;
+  }
+  .ttl-foot .acts {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+  }
+  .ttl-foot .chunky {
+    height: 34px;
+    padding: 0 14px;
+    font-size: 13.5px;
+  }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .lg {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 24px;
+    padding: 0 8px 0 6px;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--side) 12%, var(--tile));
+    color: var(--side-ink);
+    font-weight: 700;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .lg i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--side);
+  }
+  [data-colors='off'] .lg {
+    opacity: 0.45;
+  }
+  .switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    background: none;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--ink-3);
+    padding: 0 4px;
+    height: 24px;
+  }
+  .switch .knob {
+    width: 28px;
+    height: 16px;
+    border-radius: 99px;
+    background: var(--field);
+    position: relative;
+    transition: background 0.2s;
+  }
+  .switch .knob::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--tile);
+    transition: transform 0.2s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .switch[aria-checked='true'] .knob {
+    background: var(--leaf);
+  }
+  .switch[aria-checked='true'] .knob::after {
+    transform: translateX(12px);
+  }
+  .saved {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-3);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .sample-tag {
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 9px;
+    border-radius: 99px;
+    background: var(--mint);
+    color: var(--leaf-deep);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  /* "New tree", or in the sample family "Start your own tree", at the end of the top row */
+  .newtree {
+    align-self: center;
+    margin-left: auto;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 26px;
+    padding: 0 11px 0 9px;
+    border: 0;
+    border-radius: 99px;
+    background: var(--mint);
+    color: var(--leaf-deep);
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background 0.15s, translate 0.12s, box-shadow 0.12s;
+  }
+  .newtree:hover {
+    background: var(--mint-2);
+  }
+  .newtree.own {
+    background: var(--leaf);
+    color: var(--on-leaf);
+    box-shadow: 0 2px 0 var(--ledge-leaf);
+  }
+  .newtree.own:hover {
+    translate: 0 -1px;
+    box-shadow: 0 3px 0 var(--ledge-leaf);
+  }
+  .newtree:active {
+    translate: 0 1px;
+  }
+  .newtree.own:active {
+    box-shadow: 0 1px 0 var(--ledge-leaf);
+  }
+
+  .tabs {
+    position: fixed;
+    z-index: 12;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    padding: 5px;
+    background: var(--tile);
+    border-radius: 99px;
+    box-shadow: 0 4px 0 var(--ledge), var(--soft);
+  }
+  .tabs button {
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 99px;
+    background: none;
+    font-weight: 700;
+    color: var(--ink-2);
+    transition: background 0.15s, color 0.15s, transform 0.12s;
+  }
+  .tabs button svg {
+    font-size: 18px;
+  }
+  .tabs button:hover {
+    background: var(--mint-2);
+    color: var(--ink);
+  }
+  .tabs button:active {
+    transform: scale(0.96);
+  }
+  .tabs button[aria-selected='true'] {
+    background: var(--leaf);
+    color: var(--on-leaf);
+  }
+
+  .corner {
+    position: fixed;
+    z-index: 12;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+  }
+  .pillset {
+    display: flex;
+    gap: 2px;
+    background: var(--tile);
+    border-radius: 99px;
+    padding: 4px;
+    box-shadow: 0 4px 0 var(--ledge), var(--soft);
+  }
+
+  .dock {
+    position: fixed;
+    z-index: 20;
+    left: 50%;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    background: var(--tile);
+    border-radius: 99px;
+    box-shadow: 0 5px 0 var(--ledge), var(--soft);
+  }
+  .dock button {
+    height: 46px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 99px;
+    background: none;
+    font-weight: 700;
+    color: var(--ink-2);
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s, transform 0.12s;
+  }
+  .dock button svg {
+    font-size: 19px;
+  }
+  .dock button:hover {
+    background: var(--mint-2);
+    color: var(--ink);
+  }
+  .dock button:active {
+    transform: scale(0.96);
+  }
+  .dock button[aria-pressed='true'] {
+    background: var(--leaf);
+    color: var(--on-leaf);
+  }
+  .dock .sep {
+    width: 1px;
+    background: var(--line);
+    margin: 8px 4px;
+  }
+  .dock .me {
+    padding-left: 8px;
+  }
+  .dock .me .av .pic {
+    box-shadow: 0 0 0 2px var(--tile), 0 0 0 4px color-mix(in srgb, var(--side) 62%, var(--tile));
+  }
+  .dock .me .mem {
+    display: none;
+  }
+  .dock .me[aria-pressed='true'] .av .pic {
+    box-shadow: 0 0 0 2px var(--on-leaf);
+  }
+
+  @media (max-width: 1300px) {
+    /* Icons only, but the label stays as the button's name for screen readers */
+    .tabs button .label,
+    .dock button .label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .tabs button,
+    .dock button {
+      padding: 0 14px;
+    }
+    .dock .me {
+      padding: 0 8px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .brand {
+      padding: 8px 12px;
+      gap: 4px;
+      /* leave room for the buttons at the top right; long titles wrap to two lines */
+      max-width: calc(100vw - 168px);
+    }
+    .brand .sub,
+    .brand .sample-tag,
+    .brand .saved,
+    .legend,
+    .ttl-sub,
+    .ttl-stats {
+      display: none;
+    }
+    .brand .wm {
+      font-size: 16px;
+    }
+    .titleblock {
+      padding-top: 4px;
+    }
+    .brand.editing {
+      max-width: calc(100vw - 32px);
+    }
+    .ttl {
+      max-width: 100%;
+    }
+    .ttl-text {
+      font-size: 16.5px;
+      white-space: normal;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .tabs {
+      top: var(--tabs-top, 90px);
+    }
+    .corner .zoomset,
+    .corner .undoset {
+      display: none;
+    }
+  }
+}

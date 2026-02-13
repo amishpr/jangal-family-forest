@@ -1,0 +1,11 @@
+/* Noto Sans Gujarati, only downloaded when Gujarati text is on screen (PLAN 6.4). The exported
+   family page leaves it out and embeds it only when the tree has Gujarati in it. */
+@font-face {
+  font-family: 'Noto Sans Gujarati Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../../node_modules/@fontsource-variable/noto-sans-gujarati/files/noto-sans-gujarati-gujarati-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range: U+0951-0952, U+0964-0965, U+0A80-0AFF, U+200C-200D, U+20B9, U+25CC, U+A830-A839;
+}
