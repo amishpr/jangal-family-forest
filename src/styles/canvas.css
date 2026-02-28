@@ -1,0 +1,769 @@
+/* The Tree tab (PLAN 6.8, 6.9): tiles on a pannable canvas, connectors underneath. React Flow
+   handles pan, zoom and culling. Each tile is a node, and all the connectors are one SVG layer. */
+@layer components {
+  .canvas {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+  }
+  .canvas .react-flow {
+    --xy-background-color: transparent;
+    background: transparent;
+  }
+  .canvas .react-flow__pane {
+    cursor: grab;
+  }
+  /* Panning moves one composited layer instead of repainting every tile */
+  .canvas .react-flow__viewport {
+    will-change: transform;
+  }
+  .canvas .react-flow__pane.dragging {
+    cursor: grabbing;
+  }
+  .canvas .react-flow__node {
+    border: 0;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    /* tiles glide to their new places when the tree relayouts */
+    transition: transform 0.55s cubic-bezier(0.3, 1.3, 0.5, 1);
+  }
+  .canvas .react-flow__node:focus-visible {
+    outline: none;
+  }
+  .canvas .react-flow__node:focus-visible > .tile {
+    outline: 3px solid var(--leaf);
+    outline-offset: 3px;
+  }
+  /* The hovered tile's + buttons reach over its neighbours */
+  .canvas .react-flow__node-person:hover,
+  .canvas .react-flow__node-person:focus-within {
+    z-index: 1000 !important;
+  }
+  .canvas .react-flow__node-links {
+    pointer-events: none;
+    transition: none;
+  }
+
+  /* Connectors: the branches */
+  .links {
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .edge {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: opacity 0.2s, stroke 0.2s;
+  }
+  .edge:is(.s-own, .s-pat, .s-mat) {
+    stroke: color-mix(in srgb, var(--side) 38%, var(--line));
+  }
+  [data-colors='off'] .edge {
+    stroke: var(--line);
+  }
+  .edge.dashed {
+    stroke-dasharray: 2 8;
+  }
+  .edge.ex {
+    stroke-dasharray: 1 7;
+  }
+  .knot {
+    fill: var(--tile);
+    stroke: var(--line);
+    stroke-width: 3;
+    transition: opacity 0.2s, stroke 0.2s;
+  }
+  .vine {
+    fill: none;
+    stroke: var(--leaf);
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .links-html {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  /* A person tile (PLAN 6.9): 140 by 180, photo, name, relationship tag, years */
+  .tile {
+    --tile: var(--card);
+    position: relative;
+    width: 140px;
+    height: 180px;
+    padding: 14px 10px 10px;
+    background: var(--tile);
+    border-radius: 24px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 5px 0 var(--ledge), var(--tile-shadow);
+    transition: opacity 0.2s, translate 0.18s cubic-bezier(0.3, 1.4, 0.5, 1), box-shadow 0.18s, scale 0.2s;
+  }
+  /* Moving a tile among its brothers and sisters (TODO.md F18): the held tiles lift and follow the
+     pointer, the others slide aside, and the connectors fade until the layout redraws them */
+  .react-flow__node.lifted {
+    z-index: 1001 !important;
+    cursor: grabbing;
+  }
+  .react-flow__node.lifted .tile {
+    scale: 1.04;
+    box-shadow: 0 9px 0 var(--ledge), 0 22px 40px rgb(17 90 50 / 22%);
+  }
+  .react-flow__node.shifting {
+    transition: translate 0.16s ease;
+  }
+  .world.dragging .links,
+  .world.dragging .links-html {
+    opacity: 0.3;
+    transition: opacity 0.15s;
+  }
+  .world.dragging .sprout {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .react-flow__node.shifting {
+      transition: none;
+    }
+  }
+  .tile {
+    -webkit-touch-callout: none;
+  }
+  .tile:hover {
+    translate: 0 -4px;
+    box-shadow: 0 9px 0 var(--ledge), 0 16px 28px rgb(17 90 50 / 12%);
+  }
+  .tile:active {
+    translate: 0 3px;
+    box-shadow: 0 2px 0 var(--ledge), 0 6px 12px rgb(17 90 50 / 8%);
+  }
+  .tile > .av {
+    margin: 0 auto;
+    display: block;
+  }
+  .tile > .av .pic {
+    box-shadow: 0 0 0 3px var(--tile), 0 0 0 6px color-mix(in srgb, var(--side) 62%, var(--tile));
+  }
+  .tile .nm {
+    margin-top: 10px;
+    font: 700 15.5px/1.12 var(--font-display);
+    letter-spacing: -0.01em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+  /* Names that need two lines drop a size, so every tile keeps its height (PLAN 6.9) */
+  .tile .nm.long {
+    font-size: 14px;
+  }
+  .tile .tag:empty {
+    display: none;
+  }
+  .tile .tag {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 2px 9px;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--side) 13%, var(--tile));
+    color: var(--side-ink);
+    font-weight: 700;
+    font-size: 12px;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tile .yr {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--ink-3);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tile.dead {
+    background: color-mix(in srgb, var(--tile) 82%, var(--mint-2));
+  }
+  .tile.dead > .av .pic img {
+    filter: saturate(0.55);
+  }
+  .tile.home {
+    background: var(--leaf);
+    color: var(--on-leaf);
+    box-shadow: 0 5px 0 var(--ledge-leaf), 0 10px 22px rgb(17 90 50 / 18%);
+  }
+  .tile.home .tag {
+    background: var(--home-chip);
+    color: var(--on-leaf);
+  }
+  .tile.home .yr,
+  .tile.home .hint {
+    color: var(--on-leaf);
+  }
+  .tile.home > .av .pic {
+    box-shadow: 0 0 0 3px var(--on-leaf);
+  }
+  .tile .nm-in {
+    margin-top: 10px;
+    width: 100%;
+    height: 34px;
+    border: 2px solid var(--leaf);
+    border-radius: 12px;
+    text-align: center;
+    font: 700 14px var(--font-display);
+    background: var(--tile);
+    color: var(--ink);
+    outline: none;
+  }
+  .tile .hint {
+    font-size: 12px;
+    color: var(--ink-3);
+    margin-top: 6px;
+    font-weight: 600;
+  }
+  .photo-pick .av {
+    cursor: pointer;
+  }
+
+  /* Quick add (TODO.md F1, mockup B): the new tile opens into a card for the name, gender and
+     birthday. The tile's box stays in the layout, the card sits over it, and its node is raised
+     above the tiles around it. */
+  .react-flow__node:has(.quick) {
+    z-index: 1000 !important;
+  }
+  .tile.quick,
+  .tile.quick:hover,
+  .tile.quick:active {
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    translate: none;
+    cursor: default;
+  }
+  .quick-card {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    translate: -50% 0;
+    transform-origin: 50% 0;
+    width: 280px;
+    display: grid;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 24px;
+    background: var(--tile);
+    text-align: left;
+    box-shadow: 0 0 0 3px var(--leaf), 0 5px 0 3px var(--ledge-leaf), var(--soft);
+  }
+  /* A pet's kind: three choices and a box for anything else (TODO.md F14) */
+  .quick-pet {
+    display: grid;
+    gap: 6px;
+  }
+  .quick-pet .gseg {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .quick-pet .field-in {
+    height: 34px;
+  }
+  .quick-head {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .quick-head b {
+    display: block;
+    font: 800 15px/1.2 var(--font-display);
+  }
+  .quick-head small {
+    display: block;
+    color: var(--side-ink);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .tile .quick-head .av .cam {
+    right: -6px;
+    bottom: -6px;
+    width: 20px;
+    height: 20px;
+  }
+  .quick-card .nm-in {
+    margin: 0;
+    height: 40px;
+    padding: 0 12px;
+    text-align: left;
+  }
+  .quick-foot {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .quick-foot .hint {
+    margin: 0;
+  }
+  .quick-foot .btns {
+    display: flex;
+    gap: 6px;
+  }
+  .quick-foot .chunky {
+    height: 38px;
+    padding: 0 14px;
+  }
+  .tile .av .cam {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--leaf);
+    color: var(--on-leaf);
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    box-shadow: 0 0 0 2px var(--tile);
+  }
+
+  /* + Parent, + Sibling, + Partner, + Child around the hovered tile (PLAN C-4) */
+  .sprout {
+    position: absolute;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0 10px 0 7px;
+    border-radius: 99px;
+    border: 0;
+    background: var(--leaf);
+    color: var(--on-leaf);
+    font-weight: 700;
+    font-size: 12px;
+    opacity: 0;
+    scale: 0.5;
+    pointer-events: none;
+    transition: opacity 0.15s, scale 0.2s cubic-bezier(0.3, 1.6, 0.5, 1);
+    box-shadow: 0 3px 0 var(--ledge-leaf);
+    white-space: nowrap;
+    z-index: 4;
+  }
+  .sprout svg {
+    font-size: 13px;
+  }
+  .tile:hover .sprout,
+  .tile:focus-within .sprout {
+    opacity: 1;
+    scale: 1;
+    pointer-events: auto;
+  }
+  .sprout[data-add='parent'] {
+    top: -16px;
+    left: 50%;
+    translate: -50% 0;
+  }
+  .sprout[data-add='child'] {
+    bottom: -18px;
+    left: 50%;
+    translate: -50% 0;
+  }
+  .sprout[data-add='sibling'] {
+    left: -22px;
+    top: 44px;
+    translate: -50% 0;
+  }
+  .sprout[data-add='partner'] {
+    right: -22px;
+    top: 44px;
+    translate: 50% 0;
+  }
+  .tile.home .sprout {
+    background: var(--ink);
+    color: var(--bg);
+    box-shadow: none;
+  }
+  @media (hover: none) {
+    .sprout {
+      display: none;
+    }
+  }
+
+  /* Folding branches away (PLAN C-7) */
+  .fold {
+    position: absolute;
+    height: 24px;
+    min-width: 24px;
+    margin: -12px 0 0 -12px;
+    border-radius: 99px;
+    border: 0;
+    background: var(--tile);
+    color: var(--ink-3);
+    box-shadow: 0 0 0 3px var(--line);
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    pointer-events: auto;
+    transition: opacity 0.2s, background 0.15s;
+  }
+  .fold:hover {
+    background: var(--leaf);
+    color: var(--on-leaf);
+    box-shadow: 0 0 0 3px var(--leaf);
+  }
+  .fold.anc {
+    height: 20px;
+    min-width: 20px;
+    margin: -10px 0 0 -10px;
+    opacity: 0;
+    font-size: 12px;
+  }
+  .world:not(.focus) .fold.anc:hover,
+  .fold.anc:focus-visible {
+    opacity: 1;
+  }
+  .pill {
+    position: absolute;
+    transform: translate(-50%, 0);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 14px 0 5px;
+    border-radius: 99px;
+    border: 0;
+    background: var(--tile);
+    font-weight: 700;
+    color: var(--ink-2);
+    box-shadow: 0 4px 0 var(--ledge);
+    white-space: nowrap;
+    pointer-events: auto;
+    transition: opacity 0.2s;
+  }
+  .pill.anc {
+    transform: translate(-50%, -100%);
+  }
+  .pill .av {
+    margin-left: -8px;
+  }
+  .pill .av:first-child {
+    margin-left: 0;
+  }
+  .pill .av .pic {
+    box-shadow: 0 0 0 2px var(--tile);
+  }
+  .pill:hover {
+    color: var(--ink);
+  }
+
+  /* Hover lights up someone's immediate family; everyone else dims (PLAN C-3). The lit people and
+     lines come from a small generated stylesheet, so hovering doesn't rerender the tree. */
+  .world.focus .tile,
+  .world.pathing .tile,
+  .world.trait .tile {
+    opacity: 0.38;
+    scale: 0.96;
+  }
+  .world.focus .edge,
+  .world.pathing .edge,
+  .world.trait .edge,
+  .world.focus .knot,
+  .world.pathing .knot,
+  .world.trait .knot,
+  .world.focus :is(.fold, .pill),
+  .world.pathing :is(.fold, .pill),
+  .world.trait :is(.fold, .pill) {
+    opacity: 0.3;
+  }
+  .world .tile.lit,
+  .world .tile.on-path {
+    opacity: 1;
+    scale: 1;
+  }
+  .world.focus .edge.lit,
+  .world.focus .knot.lit {
+    opacity: 1;
+    stroke: var(--leaf);
+  }
+  .tile.on-path {
+    animation: pop-in 0.5s both cubic-bezier(0.3, 1.5, 0.5, 1);
+    animation-delay: calc(var(--i, 0) * 230ms);
+  }
+  .tile.on-path:not(.home) {
+    box-shadow: 0 0 0 4px var(--leaf), 0 5px 0 4px var(--ledge-leaf);
+  }
+  @keyframes pop-in {
+    0% {
+      opacity: 0.38;
+      scale: 0.96;
+    }
+    60% {
+      scale: 1.06;
+    }
+    100% {
+      opacity: 1;
+      scale: 1;
+    }
+  }
+  .ping::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 30px;
+    border: 4px solid var(--leaf);
+    animation: ping 1.1s ease-out 2;
+    pointer-events: none;
+  }
+  @keyframes ping {
+    from {
+      opacity: 0.9;
+      scale: 1;
+    }
+    to {
+      opacity: 0;
+      scale: 1.25;
+    }
+  }
+  .sprouting {
+    animation: sprout-in 0.62s cubic-bezier(0.3, 1.2, 0.5, 1);
+  }
+  @keyframes sprout-in {
+    0% {
+      opacity: 0;
+      scale: 0.3;
+      rotate: -10deg;
+    }
+    65% {
+      opacity: 1;
+      scale: 1.08;
+      rotate: 3deg;
+    }
+    100% {
+      scale: 1;
+      rotate: 0deg;
+    }
+  }
+
+  /* The hover tooltip: age, birthday, and how they're related (PLAN C-3) */
+  .tip {
+    position: fixed;
+    z-index: 30;
+    pointer-events: none;
+    background: var(--ink);
+    color: var(--bg);
+    padding: 8px 14px;
+    border-radius: 16px;
+    font-size: 13.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    white-space: nowrap;
+    transform: translate(-50%, calc(-100% - 14px));
+  }
+  .tip b {
+    display: block;
+    font: 800 15px var(--font-display);
+  }
+
+  /* The empty tree, and the start screen at "/" (PLAN 6.10, TODO.md F6). It scrolls when the window
+     is short, and the auto margin keeps it centered when it isn't. */
+  .empty-start {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    overflow-y: auto;
+    padding: 72px 16px 48px;
+  }
+  .start-col {
+    margin: auto;
+    display: grid;
+    justify-items: center;
+    gap: 16px;
+    width: min(760px, 100%);
+  }
+  .empty-title {
+    margin: 0 0 8px;
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    font-size: clamp(30px, 6vw, 44px);
+    font-weight: 400;
+    text-align: center;
+  }
+  .empty-title .sub {
+    font-size: clamp(16px, 2.6vw, 20px);
+  }
+  .start-info {
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 2px solid var(--mint);
+    color: var(--ink-2);
+    font-size: 14px;
+    text-align: center;
+  }
+  .start-info h2 {
+    margin: 0 0 6px;
+    font: 800 17px var(--font-display);
+    color: var(--ink);
+  }
+  .start-about {
+    margin: 0 auto;
+    max-width: 36em;
+  }
+  .start-points {
+    list-style: none;
+    margin: 18px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+    gap: 10px;
+    text-align: left;
+  }
+  .start-points li {
+    padding: 12px 14px;
+    border-radius: 18px;
+    background: var(--mint-2);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .start-points b {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--ink);
+    font: 700 14px var(--font-display);
+  }
+  .start-foot {
+    margin: 16px 0 0;
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+  .start-foot a {
+    color: var(--leaf-deep);
+    font-weight: 700;
+  }
+  .start-tile {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    width: 220px;
+    padding: 26px 18px 22px;
+    border-radius: 28px;
+    border: 3px dashed var(--line);
+    background: var(--mint-2);
+    color: var(--ink);
+    text-align: center;
+  }
+  .start-tile:hover {
+    border-color: var(--leaf);
+    background: var(--tile);
+  }
+  .start-tile b {
+    font: 800 20px var(--font-display);
+  }
+  .start-tile span {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-3);
+  }
+
+  /* Loading: skeleton tiles in the rough shape of a tree (PLAN 6.10) */
+  .skeleton {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    gap: 70px;
+  }
+  .skeleton-row {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+  }
+  .skeleton-tile {
+    width: 140px;
+    height: 180px;
+    border-radius: 24px;
+    background: var(--tile);
+    box-shadow: 0 5px 0 var(--ledge);
+    opacity: 0.7;
+    animation: breathe 1.6s ease-in-out infinite alternate;
+  }
+  @keyframes breathe {
+    to {
+      opacity: 0.35;
+    }
+  }
+
+  /* While a trait is lit (TODO.md TR-5): what it adds up to, just above the dock */
+  .trait-bar {
+    position: fixed;
+    z-index: 19;
+    left: 50%;
+    bottom: calc(92px + env(safe-area-inset-bottom));
+    translate: -50% 0;
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 14px;
+    padding: 8px 8px 8px 18px;
+    border-radius: 24px;
+    background: var(--tile);
+    box-shadow: 0 0 0 3px var(--leaf), 0 5px 0 3px var(--ledge-leaf), var(--soft);
+  }
+  .trait-sum {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+    align-items: baseline;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .trait-sum b {
+    font: 800 15px var(--font-display);
+    color: var(--ink);
+  }
+  .trait-bar details {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--leaf-deep);
+  }
+  .trait-bar summary {
+    cursor: pointer;
+  }
+  .trait-bar ul {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+    max-height: 180px;
+    overflow-y: auto;
+    display: grid;
+    gap: 2px;
+  }
+  .trait-bar li button {
+    border: 0;
+    background: none;
+    padding: 2px 0;
+    color: var(--ink);
+    font-weight: 600;
+    text-align: left;
+  }
+  .trait-bar li button:hover {
+    text-decoration: underline;
+  }
+  .trait-bar .round {
+    width: 34px;
+    height: 34px;
+  }
+}
