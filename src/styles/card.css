@@ -1,0 +1,494 @@
+/* The person card (PLAN 7.1). It sits beside whatever you clicked, flips sides, and clamps to the
+   free space between the top bar and the dock. Only its middle scrolls, so the name and Save never
+   leave the screen. Fields reflow with a container query. Phones and short windows get a bottom
+   sheet instead. */
+@layer components {
+  .pop {
+    position: fixed;
+    z-index: 25;
+    --pw: 360px;
+    width: min(var(--pw), calc(100vw - 24px));
+    display: flex;
+    flex-direction: column;
+    background: var(--tile);
+    border-radius: 26px;
+    box-shadow: 0 6px 0 var(--ledge), var(--soft);
+    overflow: hidden;
+    container: pop / inline-size;
+    animation: popin 0.3s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .pop.edit {
+    --pw: 440px;
+  }
+  @keyframes popin {
+    from {
+      opacity: 0;
+      scale: 0.9;
+    }
+  }
+  .pop-in {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    margin: 0;
+  }
+  .pop-head {
+    flex: none;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 16px 12px 12px 18px;
+  }
+  .pop-head .top {
+    flex: 1;
+    min-width: 0;
+  }
+  .pop-head .x {
+    flex: none;
+  }
+  .pop-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: 2px 18px 16px;
+  }
+  .pop-foot {
+    flex: none;
+    display: grid;
+    gap: 12px;
+    padding: 12px 18px 16px;
+    border-top: 2px solid var(--mint-2);
+  }
+  .pop .row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .pop .top {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .pop .photo-pick .av {
+    cursor: pointer;
+  }
+  .pop .av .cam {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--leaf);
+    color: var(--on-leaf);
+    display: grid;
+    place-items: center;
+    font-size: 13px;
+    box-shadow: 0 0 0 3px var(--tile);
+  }
+  .pop h3 {
+    margin: 0;
+    font: 800 22px/1.05 var(--font-display);
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+  }
+  .pop .top .tag {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--side) 14%, var(--tile));
+    color: var(--side-ink);
+    font-weight: 700;
+    font-size: 12.5px;
+  }
+  .pop .gline {
+    font-size: 12.5px;
+    color: var(--ink-3);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .pop .facts {
+    display: grid;
+    gap: 8px;
+  }
+  .pop .fact {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .pop .fact > .ic {
+    width: 32px;
+    height: 32px;
+    border-radius: 12px;
+    background: var(--mint-2);
+    display: grid;
+    place-items: center;
+    color: var(--leaf-deep);
+    font-size: 16px;
+    flex: none;
+  }
+  .pop .fact > .ic svg {
+    width: 20px;
+    height: 20px;
+  }
+  .pop .fact small {
+    display: block;
+    color: var(--ink-3);
+    font-weight: 600;
+    font-size: 12px;
+  }
+  .pop .trait-chips {
+    margin-top: 10px;
+  }
+  .trait-story {
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 3px;
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .trait-story b {
+    color: var(--ink);
+  }
+  .pop .notes {
+    margin: 12px 0 0;
+    color: var(--ink-2);
+    font-size: 14px;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+  }
+  .pop .notes a {
+    color: var(--leaf-deep);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .pop .empty {
+    margin: 0;
+    color: var(--ink-3);
+    font-weight: 600;
+  }
+  .pop .chunky {
+    height: 38px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+  .pop .family {
+    margin-top: 14px;
+    display: grid;
+    gap: 6px;
+  }
+  .pop .family h4 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-3);
+  }
+  .pop .family .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .pchip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 10px 0 3px;
+    border-radius: 99px;
+    border: 0;
+    background: var(--mint-2);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .pchip:hover {
+    background: var(--mint);
+  }
+  .meline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-3);
+  }
+  .meline > svg {
+    font-size: 17px;
+  }
+  .meline span {
+    flex: 1;
+    min-width: 120px;
+  }
+  .pop .fields {
+    display: grid;
+    gap: 10px;
+  }
+  .pop label,
+  .fl {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ink-2);
+    display: grid;
+    gap: 4px;
+  }
+  .field-in {
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    border: 2px solid var(--field);
+    border-radius: 14px;
+    padding: 0 12px;
+    background: var(--tile);
+    font-weight: 600;
+    color: var(--ink);
+  }
+  textarea.field-in {
+    height: 72px;
+    min-height: 72px;
+    max-height: 220px;
+    padding: 8px 12px;
+    resize: none;
+    line-height: 1.4;
+  }
+  .field-in:focus {
+    outline: none;
+    border-color: var(--leaf);
+  }
+  .field-in[aria-invalid='true'] {
+    border-color: var(--danger);
+  }
+  .field-err {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--danger);
+  }
+  .two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .three {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr 1fr;
+    gap: 6px;
+  }
+  @container pop (max-width: 400px) {
+    .two {
+      grid-template-columns: 1fr;
+    }
+  }
+  .gseg {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    background: var(--mint-2);
+    border-radius: 16px;
+    padding: 4px;
+  }
+  @container pop (max-width: 330px) {
+    .gseg {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .gseg label {
+    display: block;
+    position: relative;
+  }
+  .gseg input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .gseg span {
+    display: grid;
+    place-items: center;
+    height: 34px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .gseg input:checked + span {
+    background: var(--tile);
+    color: var(--ink);
+    box-shadow: 0 2px 0 var(--ledge);
+  }
+  .gseg input:focus-visible + span {
+    outline: 3px solid var(--leaf);
+  }
+  .help {
+    margin: -2px 0 0;
+    font-size: 12px;
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+  /* "This is me" switch at the top of the edit form */
+  .pop .me-toggle {
+    position: relative;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px 10px 12px;
+    border-radius: 18px;
+    background: var(--mint-2);
+    cursor: pointer;
+  }
+  .me-toggle input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .me-toggle .knob {
+    width: 38px;
+    height: 22px;
+    border-radius: 99px;
+    background: var(--field);
+    position: relative;
+    transition: background 0.2s;
+  }
+  .me-toggle .knob::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--tile);
+    transition: transform 0.2s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .me-toggle input:checked + .knob {
+    background: var(--leaf);
+  }
+  .me-toggle input:checked + .knob::after {
+    transform: translateX(16px);
+  }
+  .me-toggle input:focus-visible + .knob {
+    outline: 3px solid var(--leaf);
+    outline-offset: 2px;
+  }
+  .me-toggle b {
+    display: block;
+    font-size: 14.5px;
+    color: var(--ink);
+  }
+  .me-toggle small {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-3);
+  }
+  .addpanel {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--mint-2) 70%, var(--tile));
+    box-shadow: inset 0 0 0 2px var(--mint-2);
+  }
+  .addpanel h4 {
+    margin: 0;
+    font: 800 15px var(--font-display);
+  }
+  .addpanel .chunky {
+    justify-self: start;
+  }
+  /* Parent, partner, child, sibling and pet */
+  .addpanel .gseg {
+    grid-template-columns: repeat(auto-fit, minmax(58px, 1fr));
+  }
+  .choices {
+    display: grid;
+    gap: 6px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .pop .results {
+    margin: 0;
+  }
+  .pop .res {
+    grid-template-columns: 36px 1fr auto;
+    padding: 6px 10px 6px 6px;
+  }
+  .pop .res b {
+    font-size: 14.5px;
+  }
+  .crop {
+    display: grid;
+    gap: 10px;
+  }
+  .crop-area {
+    position: relative;
+    height: 260px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--ink);
+  }
+  .crop input[type='range'] {
+    width: 100%;
+    accent-color: var(--leaf);
+  }
+  .danger-zone {
+    margin-top: 6px;
+    padding-top: 12px;
+    border-top: 2px dashed var(--mint-2);
+  }
+  .linkbtn {
+    border: 0;
+    background: none;
+    padding: 0;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--danger);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .confirm {
+    display: grid;
+    gap: 8px;
+    padding: 12px 14px;
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--danger) 10%, var(--tile));
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .confirm ul {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--ink-2);
+  }
+
+  /* Phones and short windows: the person card becomes a bottom sheet over the dock */
+  @media (max-width: 760px), (max-height: 540px) {
+    .pop {
+      left: 8px !important;
+      right: 8px;
+      top: auto !important;
+      bottom: calc(8px + env(safe-area-inset-bottom));
+      width: auto;
+      max-height: calc(100dvh - 56px) !important;
+      border-radius: 26px 26px 22px 22px;
+    }
+    .pop::before {
+      content: '';
+      flex: none;
+      width: 40px;
+      height: 5px;
+      border-radius: 99px;
+      background: var(--line);
+      margin: 8px auto -6px;
+    }
+  }
+}
