@@ -1,0 +1,223 @@
+/* The Timeline tab (PLAN X-4, 8.11): lifespans as bars in branch colors, grouped by generation,
+   with a year marker you can drag. Loaded with the tab. */
+@layer components {
+  .tl-card {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    background: var(--tile);
+    border-radius: 28px;
+    box-shadow: 0 6px 0 var(--ledge), var(--soft);
+    overflow: hidden;
+  }
+  .tl-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 18px 22px 12px;
+  }
+  .tl-top h2 {
+    margin: 0;
+    font: 800 26px/1.1 var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  .tl-read {
+    color: var(--ink-3);
+    font-weight: 600;
+    font-size: 14px;
+    margin-top: 2px;
+  }
+  .tl-read b {
+    color: var(--leaf-deep);
+    font: 800 18px var(--font-display);
+    margin-right: 4px;
+  }
+  .tl-acts {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .tl-scroll {
+    overflow: auto;
+    position: relative;
+    overscroll-behavior: contain;
+  }
+  .tl-inner {
+    position: relative;
+    padding-bottom: 20px;
+  }
+  .tl-axis {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    height: 36px;
+    background: var(--tile);
+    cursor: ew-resize;
+    box-shadow: 0 1px 0 var(--mint);
+    touch-action: none;
+  }
+  .tick {
+    position: absolute;
+    top: 10px;
+    transform: translateX(-50%);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .gridline {
+    position: absolute;
+    top: 36px;
+    bottom: 0;
+    width: 2px;
+    margin-left: -1px;
+    background: var(--mint-2);
+    border-radius: 2px;
+  }
+  .tl-group {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 16px 22px 6px;
+    font: 800 16px var(--font-display);
+  }
+  .tl-group span {
+    font: 600 12.5px var(--font-ui);
+    color: var(--ink-3);
+  }
+  .tl-row {
+    position: relative;
+    z-index: 1;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 16px;
+    margin: 0 8px;
+    transition: opacity 0.25s, background 0.15s;
+    width: calc(100% - 16px);
+    border: 0;
+    background: none;
+    padding: 0;
+    text-align: left;
+    color: var(--ink);
+  }
+  .tl-row:hover,
+  .tl-row.lit {
+    background: var(--mint-2);
+  }
+  .tl-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 12px;
+    font: 700 14px var(--font-display);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: none;
+  }
+  .tl-bar {
+    position: absolute;
+    height: 18px;
+    border-radius: 99px;
+    background: var(--side);
+    transition: opacity 0.25s;
+  }
+  .tl-bar.living {
+    -webkit-mask: linear-gradient(90deg, #000 88%, transparent);
+    mask: linear-gradient(90deg, #000 88%, transparent);
+  }
+  .tl-bar.approx {
+    -webkit-mask: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+    mask: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+  }
+  .tl-end {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    font-size: 12.5px;
+    color: var(--side-ink);
+    white-space: nowrap;
+  }
+  .tl-end svg {
+    width: 14px;
+    height: 14px;
+  }
+  .tl-none {
+    position: absolute;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-3);
+  }
+  .agechip {
+    position: absolute;
+    z-index: 2;
+    transform: translateX(-50%);
+    height: 24px;
+    min-width: 30px;
+    padding: 0 7px;
+    border-radius: 99px;
+    background: var(--tile);
+    color: var(--ink);
+    font: 800 13px/24px var(--font-display);
+    text-align: center;
+    box-shadow: 0 0 0 2px var(--side), 0 3px 0 var(--ledge);
+    pointer-events: none;
+  }
+  .timeline.focus .tl-row:not(.lit) {
+    opacity: 0.35;
+  }
+  .tl-row.unborn {
+    opacity: 0.22;
+  }
+  .tl-row.gone {
+    opacity: 0.5;
+  }
+  .tl-cursor {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    margin-left: -1.5px;
+    background: var(--leaf);
+    border-radius: 3px;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .tl-knob {
+    position: absolute;
+    top: 5px;
+    transform: translateX(-50%);
+    z-index: 5;
+    height: 26px;
+    padding: 0 12px;
+    border-radius: 99px;
+    border: 0;
+    background: var(--leaf);
+    color: var(--on-leaf);
+    font: 800 13px var(--font-display);
+    cursor: ew-resize;
+    box-shadow: 0 3px 0 var(--ledge-leaf);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .tl-row.ping::after {
+    border-radius: 18px;
+    inset: -3px;
+  }
+  @media (max-width: 760px) {
+    .tl-top {
+      padding: 14px 16px 10px;
+    }
+    .tl-top h2 {
+      font-size: 22px;
+    }
+  }
+}

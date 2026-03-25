@@ -1,0 +1,322 @@
+import '../../styles/timeline.css'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useHome, useIndex, useSides, sideClass } from '../../app/derive'
+import { tabGoTo } from '../../app/nav'
+import { age, decimalYear, today } from '../../core/dates'
+import { fullName, isDeceased } from '../../core/model'
+import { generationName, generations } from '../../core/title'
+import { immediateFamily } from '../../core/path'
+import { useUi } from '../../store/uiStore'
+import { Avatar, SeedMark } from '../../ui/Avatar'
+import { CalendarCheck, Pause, Play } from '../../ui/icons'
+import { reduceMotion } from '../canvas/camera'
+
+// The Timeline tab (PLAN X-4, 8.11). Everyone's lifespan as a bar in their branch color, grouped by
+// generation. Drag the year marker (or use the arrow keys on it) to see who was alive that year and
+// how old they were. "Watch the family grow" plays the years from the oldest birth to today.
+
+const SIDE_ORDER: Record<string, number> = { paternal: 0, own: 1, maternal: 2, other: 3 }
+const PLAY_MS = 9000
+
+export default function TimelineTab() {
+  const ix = useIndex()
+  const sides = useSides()
+  const home = useHome()
+  const hover = useUi((s) => s.hover)
+  const scroller = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(0)
+  const [year, setYearState] = useState<number | null>(null)
+  const [playing, setPlaying] = useState(false)
+  // Today, read once when the tab opens
+  const [now] = useState(today)
+  const NOW = now.getFullYear()
+
+  useLayoutEffect(() => {
+    const el = scroller.current
+    if (!el) return
+    const ro = new ResizeObserver(() => setWidth(el.clientWidth))
+    ro.observe(el)
+    setWidth(el.clientWidth)
+    return () => ro.disconnect()
+  }, [])
+
+  const data = useMemo(() => {
+    if (!ix || !sides) return null
+    const gen = generations(ix)
+    const years = ix.ids.map((id) => ix.person(id)!.birth?.date?.year).filter((y): y is number => !!y)
+    const Y0 = years.length ? Math.floor((Math.min(...years) - 3) / 10) * 10 : now.getFullYear() - 100
+    const rows = [...ix.ids].sort((a, b) => {
+      const pa = ix.person(a)!
+      const pb = ix.person(b)!
+      return (
+        gen.get(a)! - gen.get(b)! ||
+        (SIDE_ORDER[sides.side(a) ?? 'other'] ?? 3) - (SIDE_ORDER[sides.side(b) ?? 'other'] ?? 3) ||
+        (pa.birth?.date?.year ?? 9999) - (pb.birth?.date?.year ?? 9999)
+      )
+    })
+    return { gen, Y0, rows, oldest: years.length ? Math.min(...years) : now.getFullYear() }
+  }, [ix, sides, now])
+
+  // Find scrolls to someone's row and pings it
+  useEffect(() => {
+    tabGoTo.timeline = (id) => {
+      const row = document.querySelector<HTMLElement>(`.tl-row[data-id="${CSS.escape(id)}"]`)
+      if (!row) return
+      row.scrollIntoView({ block: 'center', behavior: reduceMotion() ? 'auto' : 'smooth' })
+      row.classList.remove('ping')
+      void row.offsetWidth
+      row.classList.add('ping')
+      setTimeout(() => row.classList.remove('ping'), 2300)
+    }
+    return () => {
+      delete tabGoTo.timeline
+    }
+  }, [])
+
+  // Watch the family grow
+  const raf = useRef(0)
+  useEffect(() => () => cancelAnimationFrame(raf.current), [])
+  const stop = () => {
+    cancelAnimationFrame(raf.current)
+    setPlaying(false)
+  }
+  const play = () => {
+    if (!data) return
+    if (playing) return stop()
+    const start = data.oldest - 1
+    const t0 = performance.now()
+    const dur = reduceMotion() ? 1 : PLAY_MS
+    setPlaying(true)
+    const tick = (t: number) => {
+      const k = Math.min(1, (t - t0) / dur)
+      setYearState(Math.round(start + (NOW - start) * k))
+      if (k < 1) raf.current = requestAnimationFrame(tick)
+      else {
+        setPlaying(false)
+        setYearState(null)
+      }
+    }
+    raf.current = requestAnimationFrame(tick)
+  }
+
+  if (!ix || !sides || !data) return null
+  const { gen, Y0, rows } = data
+  const Y1 = NOW + 4
+  const NAME = typeof window !== 'undefined' && window.innerWidth < 760 ? 132 : 230
+  const W = Math.max(0, width - 16)
+  const px = W ? (W - NAME - 64) / (Y1 - Y0) : 0
+  const x = (y: number) => NAME + (y - Y0) * px
+  const setYear = (y: number | null) => setYearState(y == null ? null : Math.max(Y0, Math.min(NOW, Math.round(y))))
+  const Y = year ?? NOW
+  const markerAt = x(Y + (year == null ? now.getMonth() / 12 : 0.5))
+  const homeGen = home ? gen.get(home) : undefined
+  const lit = hover ? immediateFamily(ix, hover).persons : null
+
+  const counts = new Map<number, number>()
+  for (const id of rows) counts.set(gen.get(id)!, (counts.get(gen.get(id)!) ?? 0) + 1)
+
+  let alive = 0
+  let unborn = 0
+  let gone = 0
+  const yearFromX = (clientX: number) => {
+    const r = scroller.current!.firstElementChild!.getBoundingClientRect()
+    return Y0 + (clientX - r.left - NAME) / px
+  }
+
+  const body: React.ReactNode[] = []
+  let last: number | null = null
+  for (const id of rows) {
+    const p = ix.person(id)!
+    const g = gen.get(id)!
+    if (g !== last) {
+      const d = homeGen != null ? homeGen - g : null
+      const label = d != null ? generationName(d) : g === 0 ? 'Oldest generation' : `Generation ${g + 1}`
+      const n = counts.get(g)!
+      body.push(
+        <div className="tl-group" key={`g${g}`}>
+          {label}
+          <span>
+            {n} {n === 1 ? 'person' : 'people'}
+          </span>
+        </div>,
+      )
+      last = g
+    }
+    const side = sideClass(sides, id)
+    const b = decimalYear(p.birth?.date)
+    const dead = isDeceased(p)
+    const d = decimalYear(p.death?.date)
+    const e = b == null ? null : dead ? (d ?? b + 1) : NOW + now.getMonth() / 12 + 0.3
+    const by = p.birth?.date?.year
+    const isUnborn = year != null && by != null && by > year
+    const isGone = year != null && dead && p.death?.date?.year != null && p.death.date.year < year
+    if (year != null && by != null) {
+      if (isUnborn) unborn++
+      else if (isGone) gone++
+      else alive++
+    }
+    const a = age(p)
+    const approx = !!p.birth?.date?.approx || !!p.death?.date?.approx
+    body.push(
+      <button
+        type="button"
+        key={id}
+        data-id={id}
+        className={`tl-row ${side} ${isUnborn ? 'unborn' : ''} ${isGone ? 'gone' : ''} ${lit?.has(id) ? 'lit' : ''}`}
+        title={`${fullName(p)}${by ? `, ${by}` : ''}`}
+        onMouseEnter={() => useUi.getState().setHover(id)}
+        onMouseLeave={() => useUi.getState().setHover(null)}
+        onClick={(ev) => {
+          const r = ev.currentTarget.querySelector('.tl-name')!.getBoundingClientRect()
+          useUi.getState().openCard(id, 'view', r)
+        }}
+      >
+        <span className="tl-name" style={{ width: NAME }}>
+          <Avatar person={p} size={30} side={side} />
+          {fullName(p)}
+        </span>
+        {b != null && e != null && W > 0 ? (
+          <>
+            <span
+              className={`tl-bar ${dead ? '' : 'living'} ${approx ? 'approx' : ''}`}
+              style={{ left: x(b), width: Math.max(6, x(e) - x(b)) }}
+            />
+            <span className="tl-end" style={{ left: x(e) + 8 }}>
+              {dead ? (
+                <>
+                  <SeedMark />
+                  {a == null ? 'dates unknown' : `${a} years`}
+                </>
+              ) : (
+                a
+              )}
+            </span>
+            {year != null && !isUnborn && !isGone && by != null && (
+              <span className="agechip" style={{ left: x(year + 0.5) }}>
+                {year - by}
+              </span>
+            )}
+          </>
+        ) : (
+          <span className="tl-none" style={{ left: NAME + 12 }}>
+            Birth year not recorded
+          </span>
+        )}
+      </button>,
+    )
+  }
+
+  const me = home ? ix.person(home) : null
+  const meBorn = me?.birth?.date?.year
+  const readout =
+    year == null ? (
+      'Drag the year marker, or press play to watch the family grow'
+    ) : (
+      <>
+        <b>{year}</b>
+        {alive} living, {gone} remembered, {unborn} not born yet.
+        {meBorn != null && (year < meBorn ? ` ${meBorn - year} years before you were born.` : ` You were ${year - meBorn}.`)}
+      </>
+    )
+
+  const ticks: number[] = []
+  for (let y = Math.ceil(Y0 / 10) * 10; y <= Y1; y += 10) ticks.push(y)
+
+  return (
+    <section className="panelview view-enter" id="view-timeline" aria-label="Timeline">
+      <div className={`tl-card timeline ${lit ? 'focus' : ''}`}>
+        <div className="tl-top">
+          <div>
+            <h2>Lifespans</h2>
+            <div className="tl-read" aria-live="polite">
+              {readout}
+            </div>
+          </div>
+          <div className="tl-acts">
+            <button type="button" className="chunky go" onClick={play}>
+              {playing ? <Pause /> : <Play />}
+              {playing ? 'Pause' : 'Watch the family grow'}
+            </button>
+            <button
+              type="button"
+              className="chunky"
+              onClick={() => {
+                stop()
+                setYear(null)
+              }}
+            >
+              <CalendarCheck />
+              Today
+            </button>
+          </div>
+        </div>
+        <div className="tl-scroll" ref={scroller}>
+          <div
+            className="tl-inner"
+            onPointerDown={(e) => {
+              if (!(e.target as Element).closest('.tl-axis')) return
+              stop()
+              e.currentTarget.setPointerCapture(e.pointerId)
+              e.currentTarget.dataset.drag = '1'
+              setYear(yearFromX(e.clientX))
+              e.preventDefault()
+            }}
+            onPointerMove={(e) => {
+              if (e.currentTarget.dataset.drag) setYear(yearFromX(e.clientX))
+            }}
+            onPointerUp={(e) => {
+              delete e.currentTarget.dataset.drag
+            }}
+          >
+            <div className="tl-axis">
+              {W > 0 &&
+                ticks.map((y) => (
+                  <span key={y} className="tick" style={{ left: x(y) }}>
+                    {y}
+                  </span>
+                ))}
+              {W > 0 && (
+                <button
+                  type="button"
+                  className="tl-knob"
+                  style={{ left: markerAt }}
+                  role="slider"
+                  aria-label="Year"
+                  aria-valuemin={Y0}
+                  aria-valuemax={NOW}
+                  aria-valuenow={Y}
+                  aria-valuetext={year == null ? 'Today' : String(Y)}
+                  onKeyDown={(e) => {
+                    const step = e.shiftKey ? 10 : 1
+                    if (e.key === 'ArrowLeft') {
+                      e.preventDefault()
+                      stop()
+                      setYear(Y - step)
+                    } else if (e.key === 'ArrowRight') {
+                      e.preventDefault()
+                      stop()
+                      if (Y + step >= NOW) setYear(null)
+                      else setYear(Y + step)
+                    } else if (e.key === 'Home') {
+                      e.preventDefault()
+                      setYear(Y0)
+                    } else if (e.key === 'End') {
+                      e.preventDefault()
+                      setYear(null)
+                    }
+                  }}
+                >
+                  {year == null ? 'Today' : Y}
+                </button>
+              )}
+            </div>
+            {W > 0 && ticks.map((y) => <div key={y} className="gridline" style={{ left: x(y) }} />)}
+            {body}
+            {W > 0 && <div className="tl-cursor" style={{ left: markerAt }} />}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
