@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- A family page is private. If it's ever put online, search engines should leave it alone. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <!--jangal:csp-->
+    <title>Family tree</title>
+    <script>
+      try {
+        var t = localStorage.getItem('jangal:theme')
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t)
+      } catch (e) {}
+    </script>
+    <!--jangal:fonts-->
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>This family tree needs JavaScript to draw. Open it in a web browser like Safari, Chrome or Firefox.</noscript>
+    <script type="application/json" id="jangal-data">{}</script>
+    <script type="module" src="/src/viewer/main.tsx"></script>
+  </body>
+</html>
