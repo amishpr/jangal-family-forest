@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!--csp-->
+    <!-- The app is the site's front door (TODO.md F6), so it's written for search results and link previews -->
+    <title>Jangal (જંગલ) - The Family Forest | Free family tree maker</title>
+    <meta name="description" content="Build your family tree in your browser and see how anyone is related, in plain words. Free, no account, and nothing is uploaded. Share a page or a poster." />
+    <link rel="canonical" href="%VITE_SITE_URL%/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#EFF7F1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#24211C" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Jangal (જંગલ)" />
+    <meta property="og:title" content="Jangal (જંગલ) - The Family Forest" />
+    <meta property="og:description" content="Build your family tree and see how anyone is related, in plain words. Free and private." />
+    <meta property="og:url" content="%VITE_SITE_URL%/" />
+    <meta property="og:image" content="%VITE_SITE_URL%/og/%VITE_OG_IMAGE%" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="A family tree in Jangal, with the path from Ranbir to his cousin Kareena highlighted" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Jangal (જંગલ) - The Family Forest" />
+    <meta name="twitter:description" content="Build your family tree and see how anyone is related, in plain words. Free and private." />
+    <meta name="twitter:image" content="%VITE_SITE_URL%/og/%VITE_OG_IMAGE%" />
+    <meta name="twitter:image:alt" content="A family tree in Jangal, with the path from Ranbir to his cousin Kareena highlighted" />
+    <!--jsonld-->
+    <!-- A theme picked in the app applies before the first paint, so it never flashes the other one -->
+    <script>
+      try {
+        var t = localStorage.getItem('jangal:theme')
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t)
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Filled at build time with what the start screen says about Jangal (scripts/prerender.mjs) -->
+    <noscript>
+      <h1>Jangal (જંગલ) - The Family Forest</h1>
+      <p>Jangal needs JavaScript to draw your family tree.</p>
+      <!--site:start-->
+    </noscript>
+    <script type="module" src="/src/app/main.tsx"></script>
+  </body>
+</html>
