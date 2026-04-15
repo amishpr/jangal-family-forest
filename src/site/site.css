@@ -1,0 +1,182 @@
+/* The public pages (PLAN 10.1): privacy and 404. The landing page was removed (TODO.md F7). The same
+   tokens and pieces as the app, inlined into each page so it paints from the first response. */
+@import 'tailwindcss/preflight';
+@import '../styles/tokens.css';
+
+@layer base {
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.6 var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+  }
+  a {
+    color: inherit;
+  }
+  :focus-visible {
+    outline: 3px solid var(--leaf);
+    outline-offset: 2px;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+  }
+}
+
+/* Shared pieces, the same as the app's */
+.wm {
+  display: inline-block;
+  line-height: 1;
+  white-space: nowrap;
+}
+.wm svg {
+  display: inline;
+  fill: currentColor;
+  overflow: visible;
+}
+.sub {
+  font: 500 15px var(--font-display);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.chunky {
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 22px;
+  border-radius: 99px;
+  background: var(--mint);
+  color: var(--leaf-deep);
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 3px 0 var(--ledge);
+  white-space: nowrap;
+  transition: translate 0.12s, box-shadow 0.12s;
+}
+.chunky:active {
+  translate: 0 2px;
+  box-shadow: 0 1px 0 var(--ledge);
+}
+.chunky.go {
+  background: var(--leaf);
+  color: var(--on-leaf);
+  box-shadow: 0 3px 0 var(--ledge-leaf);
+}
+
+/* Header */
+.site-head {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 22px 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.brandlink {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  text-decoration: none;
+  font-size: 24px;
+}
+.brandlink .sub {
+  font-size: 15px;
+}
+.site-head .chunky {
+  height: 42px;
+  padding: 0 18px;
+}
+.lede {
+  margin: 20px 0 0;
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  max-width: 34em;
+}
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 28px 0 0;
+}
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Text pages: privacy and 404 */
+.prose {
+  max-width: 720px;
+  padding: 48px 24px 64px;
+}
+.prose h1 {
+  margin: 0;
+  font-size: clamp(38px, 6vw, 56px);
+  font-weight: 800;
+}
+.prose h2 {
+  margin: 36px 0 8px;
+  font-size: 24px;
+  font-weight: 800;
+}
+.prose p {
+  margin: 0 0 12px;
+  color: var(--ink-2);
+}
+.notfound {
+  min-height: 50vh;
+}
+
+/* Footer */
+.site-foot {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px 48px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 28px;
+  color: var(--ink-3);
+  font-size: 14.5px;
+  font-weight: 600;
+}
+.foot-brand {
+  margin: 0;
+  font-size: 20px;
+  color: var(--ink);
+}
+.foot-about {
+  margin: 0;
+  flex: 1;
+}
+.site-foot nav {
+  display: flex;
+  gap: 18px;
+}
+.site-foot a {
+  text-decoration: none;
+}
+.site-foot a:hover {
+  text-decoration: underline;
+}
+@media (max-width: 520px) {
+  .site-head .sub,
+  .site-head .chunky {
+    display: none;
+  }
+  .lede {
+    font-size: 17px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}
