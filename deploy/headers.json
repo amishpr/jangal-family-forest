@@ -1,0 +1,28 @@
+{
+  "$comment": "One source for the security and cache headers (PLAN 10.6). scripts/gen-host-config.mjs writes them into netlify.toml and vercel.json. GitHub Pages can't send headers, so each page also carries its Content Security Policy as a meta tag.",
+  "rules": [
+    {
+      "path": "/*",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Content-Security-Policy": "frame-ancestors 'none'",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+        "Cross-Origin-Opener-Policy": "same-origin"
+      }
+    },
+    { "path": "/assets/*", "headers": { "Cache-Control": "public, max-age=31536000, immutable" } },
+    { "path": "/og/*", "headers": { "Cache-Control": "public, max-age=31536000, immutable" } },
+    { "path": "/img/*", "headers": { "Cache-Control": "public, max-age=31536000, immutable" } },
+    { "path": "/*.html", "headers": { "Cache-Control": "public, max-age=0, must-revalidate" } },
+    { "path": "/", "headers": { "Cache-Control": "public, max-age=0, must-revalidate" } },
+    { "path": "/app/", "headers": { "Cache-Control": "public, max-age=0, must-revalidate", "X-Robots-Tag": "noindex, follow" } },
+    { "path": "/privacy/", "headers": { "Cache-Control": "public, max-age=0, must-revalidate" } },
+    { "path": "/sw.js", "headers": { "Cache-Control": "public, max-age=0, must-revalidate" } },
+    { "path": "/viewer-template.html", "headers": { "Cache-Control": "public, max-age=0, must-revalidate", "X-Robots-Tag": "noindex" } },
+    { "path": "/robots.txt", "headers": { "Cache-Control": "public, max-age=3600" } },
+    { "path": "/sitemap.xml", "headers": { "Cache-Control": "public, max-age=3600" } },
+    { "path": "/site.webmanifest", "headers": { "Cache-Control": "public, max-age=3600" } }
+  ]
+}
