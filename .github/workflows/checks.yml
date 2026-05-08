@@ -1,0 +1,31 @@
+# Every pull request (PLAN 10.5, W-5): unit tests, type checks, lint, the size budgets, the end to
+# end tests, and Lighthouse against the budgets in .lighthouserc.cjs.
+name: Checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+        env:
+          SITE_URL: https://jangal.example
+      - run: npm run size
+      - run: npx playwright@1.48 install --with-deps chromium
+      - run: npm run e2e
+        env:
+          CI: '1'
+          SITE_URL: https://jangal.example
+      - run: npx lhci autorun
