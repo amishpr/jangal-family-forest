@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quick Add Mockups</title>
+<!-- TODO.md F1: four ways to set gender and birthday while adding someone. Standalone: the colors,
+     tiles and controls are copied from src/styles (tokens.css, app.css, canvas.css, card.css). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #eff7f1; --tile: #fdfffd; --card: #fdfffd; --ink: #0b3320; --ink-2: #3e6550; --ink-3: #50725e;
+  --leaf: #17844a; --leaf-deep: #117242; --on-leaf: #f4fff8; --mint: #d2f1dd; --mint-2: #e4f6ea;
+  --line: #bfddc9; --field: #bfddc9; --ledge: #cbe6d4; --ledge-leaf: #0e5c35; --bark: #8a6443;
+  --soft: 0 14px 30px rgb(17 90 50 / 10%); --tile-shadow: 0 10px 22px rgb(17 90 50 / 7%);
+  --pat: #1e6a50; --pat-ink: #185640; --mat: #6a962c; --mat-ink: #4b6d1c; --own: #1b9a56; --own-ink: #117242;
+  --home-chip: color-mix(in srgb, #0b3320 22%, var(--leaf));
+  --font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-ui: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #24211c; --tile: #3a3f35; --card: #34533d; --ink: #efe6da; --ink-2: #d3c5b5; --ink-3: #c6baab;
+    --leaf: #a3c585; --leaf-deep: #bedba3; --on-leaf: #0b1f14; --mint: #4f473b; --mint-2: #454a3f;
+    --line: #5f725d; --field: #7c8b78; --ledge: #15130f; --ledge-leaf: #5e7f48; --bark: #d0a57e;
+    --soft: 0 14px 30px rgb(0 0 0 / 45%); --tile-shadow: 0 10px 22px rgb(0 0 0 / 25%);
+    --pat: #8dbdab; --pat-ink: #b8dbce; --mat: #c3c27c; --mat-ink: #d8d79a; --own: #a3c585; --own-ink: #bedba3;
+    --home-chip: color-mix(in srgb, var(--on-leaf) 22%, var(--leaf));
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --bg: #24211c; --tile: #3a3f35; --card: #34533d; --ink: #efe6da; --ink-2: #d3c5b5; --ink-3: #c6baab;
+  --leaf: #a3c585; --leaf-deep: #bedba3; --on-leaf: #0b1f14; --mint: #4f473b; --mint-2: #454a3f;
+  --line: #5f725d; --field: #7c8b78; --ledge: #15130f; --ledge-leaf: #5e7f48; --bark: #d0a57e;
+  --soft: 0 14px 30px rgb(0 0 0 / 45%); --tile-shadow: 0 10px 22px rgb(0 0 0 / 25%);
+  --pat: #8dbdab; --pat-ink: #b8dbce; --mat: #c3c27c; --mat-ink: #d8d79a; --own: #a3c585; --own-ink: #bedba3;
+  --home-chip: color-mix(in srgb, var(--on-leaf) 22%, var(--leaf));
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .tile { --ink-3: #ccc1b1; } }
+:root[data-theme='dark'] .tile { --ink-3: #ccc1b1; }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 500 15px/1.45 var(--font-ui); }
+button, input, select { font: inherit; }
+main { max-width: 1240px; margin: 0 auto; padding: 28px 16px 64px; }
+header.top { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+h1 { margin: 0; font: 800 30px/1.1 var(--font-display); letter-spacing: -0.02em; }
+.lede { margin: 6px 0 0; color: var(--ink-2); max-width: 680px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(520px, 100%), 1fr)); gap: 18px; margin-top: 24px; }
+.option { background: var(--tile); border-radius: 26px; padding: 18px; box-shadow: 0 5px 0 var(--ledge), var(--tile-shadow); min-width: 0; display: flex; flex-direction: column; }
+.option.pick { outline: 3px solid var(--leaf); }
+.option h2 { margin: 0; font: 800 19px/1.2 var(--font-display); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.badge { font: 700 12px var(--font-ui); background: var(--leaf); color: var(--on-leaf); padding: 2px 10px; border-radius: 99px; }
+.option p { margin: 6px 0 0; color: var(--ink-2); font-size: 14px; }
+.pros { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 3px; font-size: 13.5px; font-weight: 600; }
+.pros li::before { content: '+ '; color: var(--leaf-deep); font-weight: 800; }
+.pros li.con::before { content: '− '; color: var(--bark); }
+.stage { margin-top: 14px; background: var(--bg); border-radius: 20px; padding: 34px 12px 30px; display: grid; justify-items: center; gap: 30px; overflow: hidden; flex: 1; align-content: center; }
+.row { display: flex; gap: 22px; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+
+/* Branch shades and the avatar (app.css) */
+.s-own { --side: var(--own); --side-ink: var(--own-ink); }
+.s-pat { --side: var(--pat); --side-ink: var(--pat-ink); }
+.s-mat { --side: var(--mat); --side-ink: var(--mat-ink); }
+.av { position: relative; display: inline-block; flex: none; width: var(--sz); height: var(--sz); }
+.av .pic { display: block; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: color-mix(in srgb, var(--side) 15%, var(--tile)); }
+.leafpic { width: 100%; height: 100%; display: block; }
+.lp-bg { fill: color-mix(in srgb, var(--side) 15%, var(--tile)); }
+.lp-leaf { fill: var(--side); }
+.lp-stem { stroke: var(--side); stroke-width: 2.8; stroke-linecap: round; fill: none; }
+.lp-vein { stroke: color-mix(in srgb, var(--side) 15%, var(--tile)); stroke-width: 2; stroke-linecap: round; fill: none; }
+.cam { position: absolute; right: -4px; bottom: -4px; width: 24px; height: 24px; border-radius: 50%; background: var(--leaf); color: var(--on-leaf); display: grid; place-items: center; box-shadow: 0 0 0 2px var(--tile); }
+.cam svg { width: 13px; height: 13px; }
+
+/* A person tile (canvas.css) */
+.tile { --tile: var(--card); position: relative; width: 140px; min-height: 180px; padding: 14px 10px 10px; background: var(--tile); border-radius: 24px; text-align: center; box-shadow: 0 5px 0 var(--ledge), var(--tile-shadow); }
+.tile > .av { margin: 0 auto; display: block; }
+.tile > .av .pic { box-shadow: 0 0 0 3px var(--tile), 0 0 0 6px color-mix(in srgb, var(--side) 62%, var(--tile)); }
+.tile .nm { margin-top: 10px; font: 700 15.5px/1.12 var(--font-display); letter-spacing: -0.01em; }
+.tile .tag { display: inline-block; margin-top: 6px; padding: 2px 9px; border-radius: 99px; background: color-mix(in srgb, var(--side) 13%, var(--tile)); color: var(--side-ink); font-weight: 700; font-size: 12px; }
+.tile .yr { margin-top: 4px; font-size: 12px; color: var(--ink-3); font-weight: 600; }
+.tile.home { background: var(--leaf); color: var(--on-leaf); box-shadow: 0 5px 0 var(--ledge-leaf), 0 10px 22px rgb(17 90 50 / 18%); }
+.tile.home .tag { background: var(--home-chip); color: var(--on-leaf); }
+.tile.home .yr { color: var(--on-leaf); }
+.tile.home > .av .pic { box-shadow: 0 0 0 3px var(--on-leaf); }
+.tile.dead { background: color-mix(in srgb, var(--tile) 82%, var(--mint-2)); }
+.tile .nm-in, .qa .nm-in { margin-top: 10px; width: 100%; height: 34px; border: 2px solid var(--leaf); border-radius: 12px; text-align: center; font: 700 14px var(--font-display); background: var(--tile); color: var(--ink); outline: none; }
+.tile .hint { font-size: 12px; color: var(--ink-3); margin-top: 6px; font-weight: 600; }
+.tile.sprouting { animation: none; box-shadow: 0 0 0 3px var(--leaf), 0 5px 0 3px var(--ledge-leaf); }
+.sprout { position: absolute; height: 28px; display: inline-flex; align-items: center; gap: 4px; padding: 0 10px 0 8px; border-radius: 99px; border: 0; background: var(--ink); color: var(--bg); font-weight: 700; font-size: 12px; white-space: nowrap; z-index: 4; cursor: pointer; }
+
+/* Form bits (card.css, app.css) */
+.fl { font-size: 12.5px; font-weight: 700; color: var(--ink-2); display: grid; gap: 4px; }
+.field-in { width: 100%; min-width: 0; height: 40px; border: 2px solid var(--field); border-radius: 14px; padding: 0 12px; background: var(--tile); font-weight: 600; color: var(--ink); }
+.field-in:focus { outline: none; border-color: var(--leaf); }
+.three { display: grid; grid-template-columns: 1.2fr 0.8fr 1fr; gap: 6px; }
+.gseg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; background: var(--mint-2); border-radius: 16px; padding: 4px; }
+.gseg label { display: block; position: relative; }
+.gseg input { position: absolute; opacity: 0; pointer-events: none; }
+.gseg span { display: grid; place-items: center; height: 34px; border-radius: 12px; font-weight: 700; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.gseg input:checked + span { background: var(--tile); color: var(--ink); box-shadow: 0 2px 0 var(--ledge); }
+.gseg input:focus-visible + span { outline: 3px solid var(--leaf); }
+.check { display: flex; gap: 8px; align-items: center; font-weight: 600; font-size: 12.5px; color: var(--ink-2); }
+.check input { accent-color: var(--leaf); width: 16px; height: 16px; }
+.chunky { height: 40px; display: inline-flex; align-items: center; gap: 8px; padding: 0 16px; border: 0; border-radius: 99px; background: var(--mint); color: var(--leaf-deep); font-weight: 700; box-shadow: 0 3px 0 var(--ledge); cursor: pointer; }
+.chunky.go { background: var(--leaf); color: var(--on-leaf); box-shadow: 0 3px 0 var(--ledge-leaf); }
+
+/* A: chips on the tile */
+.tile.a { min-height: 236px; }
+.chips3 { display: flex; gap: 4px; justify-content: center; margin-top: 8px; }
+.chips3 label { position: relative; }
+.chips3 input { position: absolute; opacity: 0; }
+.chips3 span { display: grid; place-items: center; width: 34px; height: 28px; border-radius: 10px; background: var(--mint-2); font-weight: 800; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.chips3 input:checked + span { background: var(--leaf); color: var(--on-leaf); }
+.chips3 input:focus-visible + span { outline: 3px solid var(--leaf); outline-offset: 1px; }
+.born { margin-top: 8px; display: flex; align-items: center; gap: 6px; border: 2px solid var(--field); border-radius: 12px; height: 34px; padding: 0 8px; background: var(--tile); }
+.born b { font-size: 12px; color: var(--ink-3); }
+.born input { border: 0; outline: none; width: 100%; min-width: 0; background: transparent; color: var(--ink); font: 700 14px var(--font-display); }
+
+/* B: the quick-add card */
+.qa { width: min(300px, 100%); background: var(--tile); border-radius: 24px; padding: 14px; text-align: left; box-shadow: 0 0 0 3px var(--leaf), 0 5px 0 3px var(--ledge-leaf), var(--soft); display: grid; gap: 10px; }
+.qa-head { display: flex; gap: 10px; align-items: center; }
+.qa-head b { font: 800 15px/1.2 var(--font-display); }
+.qa-head small { display: block; color: var(--ink-3); font-weight: 600; font-size: 12px; }
+.qa .nm-in { margin: 0; text-align: left; padding: 0 12px; height: 40px; }
+.qa fieldset { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; gap: 4px; }
+.qa legend { padding: 0; margin-bottom: 4px; font-size: 12.5px; font-weight: 700; color: var(--ink-2); }
+.qa-foot { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.qa-foot .hint { font-size: 12px; color: var(--ink-3); font-weight: 600; }
+.qa-foot .btns { display: flex; gap: 6px; }
+
+/* C: one smart line */
+.smart { width: min(340px, 100%); display: grid; gap: 8px; }
+.smart .tile { width: 100%; min-height: 0; display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; text-align: left; padding: 10px 12px; }
+.smart .tile .nm-in { margin: 0; text-align: left; padding: 0 10px; }
+.parsed { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; min-height: 28px; }
+.parsed button { border: 0; border-radius: 99px; padding: 4px 11px; background: var(--mint); color: var(--leaf-deep); font-weight: 700; font-size: 12.5px; cursor: pointer; }
+.parsed button.unsure { background: var(--mint-2); color: var(--ink-3); }
+
+/* D: gendered + buttons */
+.dstage { position: relative; width: 340px; max-width: 100%; height: 300px; display: grid; place-items: center; }
+.dstage .tile { margin-top: 6px; }
+.d-top { position: absolute; top: 0; left: 50%; translate: -50% 0; display: flex; gap: 6px; }
+.d-bot { position: absolute; bottom: 0; left: 50%; translate: -50% 0; display: flex; gap: 6px; }
+.d-left { position: absolute; left: 0; top: 50%; translate: 0 -50%; display: grid; gap: 6px; justify-items: end; }
+.d-right { position: absolute; right: 0; top: 50%; translate: 0 -50%; display: grid; gap: 6px; justify-items: start; }
+.dstage .sprout { position: static; }
+.dstage .sprout.hot { background: var(--leaf); color: var(--on-leaf); box-shadow: 0 3px 0 var(--ledge-leaf); }
+
+.compare { margin-top: 26px; background: var(--tile); border-radius: 22px; padding: 16px; box-shadow: 0 5px 0 var(--ledge); overflow-x: auto; }
+.compare h2 { margin: 0 0 8px; font: 800 19px var(--font-display); }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 2px solid var(--mint-2); }
+th { color: var(--ink-2); font-size: 12.5px; }
+.theme { flex: none; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-width: 520px) {
+  .stage { padding: 26px 8px 22px; }
+  .dstage { width: 100%; height: 330px; }
+  .d-left, .d-right { top: 64%; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <div>
+      <h1>Quick add: gender and birthday</h1>
+      <p class="lede">Four ways to set someone's gender and birthday while you add them, without opening the edit card.
+        In each one, Ranbir is adding his mother. His father Rishi is already in the tree, so “Woman” is picked already.
+        See TODO.md, F1.</p>
+    </div>
+    <button type="button" class="chunky theme" id="theme" aria-pressed="false">Dark theme</button>
+  </header>
+
+  <div class="grid">
+    <section class="option" aria-labelledby="a-h">
+      <h2 id="a-h">A. Chips on the tile</h2>
+      <p>The new tile grows a little: name, three gender chips, and a birth year.</p>
+      <ul class="pros"><li>Stays a tile, nothing new to learn</li><li class="con">Year only, and the chips are small to tap</li></ul>
+      <div class="stage">
+        <div class="row">
+          <div class="tile s-pat dead"><span class="av s-pat" style="--sz:66px"><span class="pic" data-leaf></span></span><div class="nm">Rishi Kapoor</div><div class="tag">Father</div><div class="yr">1952 – 2020</div></div>
+          <div class="tile a sprouting s-mat">
+            <span class="av s-mat" style="--sz:66px"><span class="pic" data-leaf></span><span class="cam" data-cam></span></span>
+            <input class="nm-in" value="Neetu Kapoor" aria-label="Name">
+            <div class="chips3" role="radiogroup" aria-label="Gender">
+              <label><input type="radio" name="a-g"><span title="Man">M</span></label>
+              <label><input type="radio" name="a-g" checked><span title="Woman">F</span></label>
+              <label><input type="radio" name="a-g"><span title="Not sure">?</span></label>
+            </div>
+            <label class="born"><b>Born</b><input inputmode="numeric" maxlength="4" value="1958" aria-label="Birth year"></label>
+            <div class="hint">Enter to save</div>
+          </div>
+        </div>
+        <div class="tile home s-own"><span class="av s-own" style="--sz:66px"><span class="pic" data-leaf></span></span><div class="nm">Ranbir Kapoor</div><div class="tag">You</div><div class="yr">1982</div></div>
+      </div>
+    </section>
+
+    <section class="option pick" aria-labelledby="b-h">
+      <h2 id="b-h">B. Quick-add card <span class="badge">Recommended</span></h2>
+      <p>The new tile opens into a small card. It reuses the edit card's date field and the segmented control.</p>
+      <ul class="pros"><li>Full or partial birthday, and big tap targets</li><li>“More…” goes on to the full edit card</li><li class="con">Covers the tiles around it while it's open</li></ul>
+      <div class="stage">
+        <div class="row">
+          <div class="tile s-pat dead"><span class="av s-pat" style="--sz:66px"><span class="pic" data-leaf></span></span><div class="nm">Rishi Kapoor</div><div class="tag">Father</div><div class="yr">1952 – 2020</div></div>
+          <form class="qa s-mat" onsubmit="return false" aria-label="New parent of Ranbir">
+            <div class="qa-head">
+              <span class="av s-mat" style="--sz:46px"><span class="pic" data-leaf></span><span class="cam" data-cam></span></span>
+              <span><b>New parent of Ranbir</b><small>Mother, if you pick Woman</small></span>
+            </div>
+            <input class="nm-in" value="Neetu Kapoor" aria-label="Name">
+            <div class="gseg" role="radiogroup" aria-label="Gender">
+              <label><input type="radio" name="b-g"><span>Man</span></label>
+              <label><input type="radio" name="b-g" checked><span>Woman</span></label>
+              <label><input type="radio" name="b-g"><span>Other</span></label>
+              <label><input type="radio" name="b-g"><span>Not sure</span></label>
+            </div>
+            <fieldset>
+              <legend>Birthday</legend>
+              <div class="three">
+                <select class="field-in" aria-label="Birthday: month"><option>Month</option><option selected>July</option></select>
+                <input class="field-in" inputmode="numeric" maxlength="2" value="8" aria-label="Birthday: day">
+                <input class="field-in" inputmode="numeric" maxlength="4" value="1958" aria-label="Birthday: year">
+              </div>
+              <label class="check"><input type="checkbox"> About (not exact)</label>
+            </fieldset>
+            <div class="qa-foot">
+              <span class="hint">Enter saves · Esc undoes</span>
+              <span class="btns"><button type="button" class="chunky">More…</button><button type="submit" class="chunky go">Save</button></span>
+            </div>
+          </form>
+        </div>
+        <div class="tile home s-own"><span class="av s-own" style="--sz:66px"><span class="pic" data-leaf></span></span><div class="nm">Ranbir Kapoor</div><div class="tag">You</div><div class="yr">1982</div></div>
+      </div>
+    </section>
+
+    <section class="option" aria-labelledby="c-h">
+      <h2 id="c-h">C. One smart line</h2>
+      <p>Type everything in one box. Chips show what was understood, and clicking one fixes it. Try typing below.</p>
+      <ul class="pros"><li>The fastest with a keyboard</li><li class="con">Hard to discover, easy to get wrong on phones, and “f”/“m” are English only</li></ul>
+      <div class="stage">
+        <div class="tile s-pat dead"><span class="av s-pat" style="--sz:66px"><span class="pic" data-leaf></span></span><div class="nm">Rishi Kapoor</div><div class="tag">Father</div><div class="yr">1952 – 2020</div></div>
+        <div class="smart">
+          <div class="tile sprouting s-mat">
+            <span class="av s-mat" style="--sz:46px"><span class="pic" data-leaf></span></span>
+            <input class="nm-in" id="smart" value="Neetu Kapoor, f, 8 July 1958" aria-label="Name, gender and birthday" aria-describedby="parsed">
+          </div>
+          <div class="parsed" id="parsed" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="option" aria-labelledby="d-h">
+      <h2 id="d-h">D. Gendered + buttons</h2>
+      <p>The + buttons say who you're adding, so gender comes with the click. The new tile then only asks for a name and a year, like A.</p>
+      <ul class="pros"><li>No extra step for gender</li><li class="con">Eight buttons crowd the tile, and there's no button for nonbinary people</li></ul>
+      <div class="stage">
+        <div class="dstage">
+          <div class="d-top"><button type="button" class="sprout">+ Father</button><button type="button" class="sprout hot">+ Mother</button></div>
+          <div class="d-left"><button type="button" class="sprout">+ Brother</button><button type="button" class="sprout">+ Sister</button></div>
+          <div class="tile home s-own"><span class="av s-own" style="--sz:66px"><span class="pic" data-leaf></span></span><div class="nm">Ranbir Kapoor</div><div class="tag">You</div><div class="yr">1982</div></div>
+          <div class="d-right"><button type="button" class="sprout">+ Wife</button><button type="button" class="sprout">+ Husband</button></div>
+          <div class="d-bot"><button type="button" class="sprout">+ Son</button><button type="button" class="sprout">+ Daughter</button></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="compare" aria-labelledby="cmp-h">
+    <h2 id="cmp-h">Side by side</h2>
+    <table>
+      <thead><tr><th>Mockup</th><th>Birthday</th><th>Touch screens</th><th>Easy to discover</th><th>New code</th></tr></thead>
+      <tbody>
+        <tr><td>A. Chips on the tile</td><td>Year only</td><td>Small targets</td><td>Good</td><td>Small</td></tr>
+        <tr><td><b>B. Quick-add card</b></td><td>Full or partial</td><td>Good</td><td>Good</td><td>Small: reuses the date field and segment</td></tr>
+        <tr><td>C. One smart line</td><td>Full or partial</td><td>Poor</td><td>Poor</td><td>A parser plus chips</td></tr>
+        <tr><td>D. Gendered + buttons</td><td>Needs A's year box</td><td>Hidden (no hover)</td><td>Good</td><td>Small, but a crowded tile</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+// The leaf portrait and camera icon from src/ui/Avatar.tsx and Phosphor
+const LEAF = '<svg class="leafpic" viewBox="0 0 64 64" aria-hidden="true"><rect class="lp-bg" width="64" height="64"/><g transform="rotate(38 32 34)"><path class="lp-stem" d="M32 47V57"/><path class="lp-leaf" d="M32 11C41.8 18.2 45.8 27.6 44.3 36.8C42.9 45 37.6 50 32 50C26.4 50 21.1 45 19.7 36.8C18.2 27.6 22.2 18.2 32 11Z"/><path class="lp-vein" d="M32 46V19M32 40.5L37.6 35M32 40.5L26.4 35M32 32L36.4 27.6M32 32L27.6 27.6"/></g></svg>'
+const CAM = '<svg viewBox="0 0 256 256" aria-hidden="true" fill="currentColor"><path d="M208 56h-27.7l-13.6-20.4A8 8 0 0 0 160 32H96a8 8 0 0 0-6.7 3.6L75.7 56H48a24 24 0 0 0-24 24v112a24 24 0 0 0 24 24h160a24 24 0 0 0 24-24V80a24 24 0 0 0-24-24Zm-80 128a44 44 0 1 1 44-44 44 44 0 0 1-44 44Z"/></svg>'
+document.querySelectorAll('[data-leaf]').forEach((el) => (el.innerHTML = LEAF))
+document.querySelectorAll('[data-cam]').forEach((el) => (el.innerHTML = CAM))
+
+const btn = document.getElementById('theme')
+const dark = () => document.documentElement.dataset.theme === 'dark' || (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches)
+const label = () => {
+  btn.textContent = dark() ? 'Light theme' : 'Dark theme'
+  btn.setAttribute('aria-pressed', String(dark()))
+}
+btn.onclick = () => {
+  document.documentElement.dataset.theme = dark() ? 'light' : 'dark'
+  label()
+}
+if (new URLSearchParams(location.search).get('theme')) document.documentElement.dataset.theme = new URLSearchParams(location.search).get('theme')
+label()
+
+// Mockup C: a rough reading of "Name, f, 8 July 1958". The real one would share core/dates.ts.
+const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
+const smart = document.getElementById('smart')
+const out = document.getElementById('parsed')
+function read() {
+  let rest = smart.value
+  let gender = null
+  let born = null
+  rest = rest.replace(/(^|[\s,])(m|male|man|f|female|woman)(?=$|[\s,])/i, (_, pre, g) => {
+    gender = /^(m|male|man)$/i.test(g) ? 'Man' : 'Woman'
+    return pre
+  })
+  rest = rest.replace(/(\d{1,2}\s+[a-z]+\s+\d{4}|[a-z]+\s+\d{1,2},?\s+\d{4}|\b\d{4}\b)/i, (d) => {
+    const words = d.toLowerCase().split(/[\s,]+/)
+    born = words.some((w) => MONTHS.includes(w)) || /^\d{4}$/.test(d) ? d.replace(/\b[a-z]/g, (c) => c.toUpperCase()) : null
+    return born ? '' : d
+  })
+  const name = rest.replace(/[\s,]+/g, ' ').trim()
+  const chip = (text, unsure) => {
+    const b = document.createElement('button')
+    b.type = 'button'
+    if (unsure) b.className = 'unsure'
+    b.textContent = text
+    return b
+  }
+  out.replaceChildren(
+    chip(name || 'Name?', !name),
+    chip(gender ? (gender === 'Man' ? '♂ Man' : '♀ Woman') : 'Gender?', !gender),
+    chip(born ? `Born ${born}` : 'Birthday?', !born),
+  )
+}
+smart.addEventListener('input', read)
+read()
+</script>
+</body>
+</html>
