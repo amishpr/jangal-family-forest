@@ -18,8 +18,7 @@ family tree, we have a family forest.
 The app is the site's front page, at `/`. Its start screen says what Jangal is, and it's built to
 be found in search and to preview well when shared. Old links to `/app/` still open it. Next to it
 are two small static pages, `/privacy/` and a 404 page. There was a separate landing page, and it
-was removed on purpose. The full product and technical plan is in
-[PLAN.md](PLAN.md). The thinking
+was removed on purpose. The thinking
 behind it, the library choices, and the bugs that came up along the way are in
 [WALKTHROUGH.md](WALKTHROUGH.md).
 
@@ -119,7 +118,6 @@ index.html                       The app's page, at "/"
 app/index.html                   Sends old links to /app/ on to "/", query and all
 privacy/, 404.html               The static pages, rendered to HTML at build time
 viewer.html                      The family page template (a separate, single file build)
-PLAN.md                          The product and technical plan
 WALKTHROUGH.md                   How it was built and why
 deploy/headers.json              Security and cache headers for every host
 netlify.toml, vercel.json        Host settings (headers are written into them by `npm run hosts`)
