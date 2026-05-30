@@ -10,10 +10,7 @@ it.
 Jangal is Gujarati and Hindi for forest. It's the old joke about Indian families: we don't have a
 family tree, we have a family forest.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot.png">
-  <img alt="The sample family, the Kapoor family, in Jangal. Ranbir Kapoor is marked as you. The How are we related sheet shows that Kareena Kapoor Khan is his first cousin, with the hop chain Ranbir, father Rishi, brother Randhir, daughter Kareena, and that path is lit up on the tree while everyone else dims" src="docs/screenshot-light.png">
-</picture>
+<img alt="The sample family, the Kapoor family, in Jangal. Ranbir Kapoor is marked as you. The How are we related sheet shows that Kareena Kapoor Khan is his first cousin, with the hop chain Ranbir, father Rishi, brother Randhir, daughter Kareena, and that path is lit up on the tree while everyone else dims" src="docs/screenshot-light.png">
 
 The app is the site's front page, at `/`. Its start screen says what Jangal is, and it's built to
 be found in search and to preview well when shared. Old links to `/app/` still open it. Next to it
@@ -92,6 +89,53 @@ behind it, the library choices, and the bugs that came up along the way are in
 - **Works offline and installs as an app.** A service worker keeps a copy of the app, and a new
   version waits until you choose to reload.
 
+## Screenshots
+
+All of these show the sample family in the light theme, and `npm run screens` makes them again.
+
+<table>
+<tr>
+<td width="50%">
+<img alt="Hovering over Rishi Kapoor lights up his parents, his wife Neetu, and his children, and dims everyone else. Buttons to add a parent, partner, child, or sibling show around his tile" src="docs/hover-light.png">
+<b>Hover</b> to light up someone's immediate family, with buttons to add a relative right there.
+</td>
+<td width="50%">
+<img alt="Ranbir Kapoor's person card: his photo, his next birthday, birthplace, a note, the trait Actor and where it came from, and his parents, wife, and sister as links" src="docs/card-light.png">
+<b>The person card</b>: dates, places, notes, traits, and links to the family.
+</td>
+</tr>
+<tr>
+<td>
+<img alt="The trait Actor lit on the tree. Everyone who is an actor stands out, the lines it ran down are lit, and a bar says 37 people across 4 generations, passed down 25 times and skipped a generation 4 times" src="docs/trait-light.png">
+<b>Traits</b>: who has one, and how it ran down the family.
+</td>
+<td>
+<img alt="The Family titles sheet set to Gujarati, with a word chosen for each relationship: Pappa, Ba, Bhai, Ben, Bhabhi, Jijaji, and more" src="docs/titles-light.png">
+<b>Family titles</b> in Gujarati, Hindi, or a language of your own.
+</td>
+</tr>
+<tr>
+<td>
+<img alt="The Timeline view: a bar for each person's lifespan, grouped by generation, with a marker at today and a Watch the family grow button" src="docs/timeline-light.png">
+<b>The Timeline</b> of lifespans, by generation.
+</td>
+<td>
+<img alt="The Fan chart centered on Ranbir, with his parents, grandparents, and great grandparents in rings around him, and dashed spaces to add the ones not known yet" src="docs/fan-light.png">
+<b>The Fan chart</b> of anyone's ancestors.
+</td>
+</tr>
+<tr>
+<td>
+<img alt="The Birthdays sheet: the next four birthdays as cards with the age each person turns, and a month calendar with faces on the days" src="docs/birthdays-light.png">
+<b>Birthdays</b> coming up, and a calendar to add them to yours.
+</td>
+<td>
+<img alt="The Share sheet: a page for family, a poster PDF, a backup file, or a spreadsheet, with switches for photos, traits, and hiding details of people who are living" src="docs/share-light.png">
+<b>Share</b> a page for family, a poster, a backup, or a spreadsheet.
+</td>
+</tr>
+</table>
+
 ## Tech stack
 
 - React 19, TypeScript, and Vite 8
@@ -127,7 +171,7 @@ netlify.toml, vercel.json        Host settings (headers are written into them by
 og/template.html                 The link preview image, rendered by `npm run og`
 mockups/                         Design mockups: the final design (07) and the F8–F19 feature mockups
 CLEAN-UP/                        Files no longer used, kept for review before deleting (see its README)
-docs/                            README screenshots (not shipped with the site)
+docs/                            README and WALKTHROUGH screenshots (not shipped with the site)
 scripts/
   prerender.mjs                  Renders the public pages to HTML, inlines their CSS, adds JSON-LD
   build-seo.mjs                  robots.txt, the sitemap, the Content Security Policy, noindex on previews
@@ -212,7 +256,8 @@ npx playwright@1.48 install chromium
 - `npm run size` checks the size budgets against the last build
 - `npm run lhci` runs Lighthouse CI against the last build
 - `npm run wordmark`, `npm run og`, `npm run screens`, and `npm run icons` regenerate the
-  wordmark, the preview image, the README screenshots, and the app icons
+  wordmark, the preview image, the screenshots in `docs/`, and the app icons (run
+  `npm run build` before `npm run screens`)
 - `npm run icon-paths` writes the drawings of the interface icons listed in `src/ui/icons.ts`
   (bold, and fill where asked) into `src/ui/icons.gen.ts`; run it after adding an icon
 - `npm run hosts` writes the headers in `deploy/headers.json` into `netlify.toml` and

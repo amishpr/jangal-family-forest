@@ -13,11 +13,24 @@ lights the path from you, and ask "How are we related?" about any two people and
 plain words, with every hop in between: Maya, her mother Priya, Priya's brother Arjun, his daughter
 Anika. Anika is Maya's first cousin.
 
+<img alt="The sample family, the Kapoor family. Ranbir Kapoor is marked as you, and the How are we related sheet shows that Kareena Kapoor Khan is his first cousin, with the path between them lit on the tree" src="docs/screenshot-light.png">
+
 There are three views of the same family (the tree, a timeline of lifespans, and a fan chart of
 ancestors) and a dock of tools that work in all of them: search, relationships, birthdays, and
 sharing. Sharing produces a single HTML page relatives can open offline, a print ready PDF poster,
 a picture, or a backup file. It also imports GEDCOM, the format Ancestry, FamilySearch, and
 MyHeritage export, so nobody has to type an existing tree in again.
+
+<table>
+<tr>
+<td width="50%">
+<img alt="The Timeline view: a bar for each person's lifespan, grouped by generation, with a marker at today" src="docs/timeline-light.png">
+</td>
+<td width="50%">
+<img alt="The Fan chart centered on Ranbir, with his ancestors in rings around him" src="docs/fan-light.png">
+</td>
+</tr>
+</table>
 
 The name is a family joke. Jangal is Gujarati and Hindi for forest, and Indian families don't have
 a family tree, they have a family forest.
@@ -123,6 +136,11 @@ Words are gendered when the person's gender is known and neutral when it isn't: 
 parent's sibling. The tests are table driven, about 70 cases, from "mother" to "first cousin
 once removed" to "uncle's former wife".
 
+The same relationships can also be named the way a family says them. The Family titles sheet maps
+each one to a Gujarati or Hindi word (Kaka, Foi, Masi), or to a language the family builds itself.
+
+<img alt="The Family titles sheet set to Gujarati, with a word chosen for each relationship: Pappa, Ba, Bhai, Ben, Bhabhi, Jijaji, and more" src="docs/titles-light.png">
+
 ## Paths
 
 To light up the route from you to someone, `src/core/path.ts` runs Dijkstra's algorithm over a
@@ -164,7 +182,18 @@ The obvious implementation, storing the hovered id and letting every tile check 
 related, re-renders every tile on every mouse move. Instead, `Emphasis.tsx` writes a tiny
 stylesheet of attribute selectors (`[data-id="maya"], [data-id="priya"] { ... }`) and puts a
 `focus` class on the canvas. The browser restyles; React renders nothing. The path animation works
-the same way, lighting its people one after another.
+the same way, lighting its people one after another, and so does picking a trait in Find.
+
+<table>
+<tr>
+<td width="50%">
+<img alt="Hovering over Rishi Kapoor lights up his parents, his wife, and his children, and dims everyone else" src="docs/hover-light.png">
+</td>
+<td width="50%">
+<img alt="The trait Actor lit on the tree, with a bar saying 37 people across 4 generations have it" src="docs/trait-light.png">
+</td>
+</tr>
+</table>
 
 Branch colors come from `src/core/sides.ts`. With someone marked as you, there's your father's
 side, your mother's side, and your own family, and in-laws take their partner's side. In the
@@ -190,6 +219,8 @@ JavaScript, CSS, and fonts into one template. At export time the app fetches the
 the tree and the photos in as data, and the page opens on the relative's computer with the same
 tree, search, and relationships, but no editing. Relatives can pick who they are, and the page
 remembers it.
+
+<img alt="The Share sheet: a page for family, a poster PDF, a backup file, or a spreadsheet, with switches for photos, traits, and hiding details of people who are living" src="docs/share-light.png">
 
 Two details made it work well:
 
@@ -231,9 +262,9 @@ speculation rules that prefetch the app when someone hovers over "Start your tre
 deploy blocks crawlers and sends `noindex`, so previews never compete with the real site. It also
 writes a Content Security Policy onto every page, allowing each page's inline scripts by hash.
 
-The link preview image is an HTML template rendered by Playwright, and the hero screenshot on the
-landing page is the real app, captured by Playwright from the production build and compressed by
-sharp into AVIF, WebP, and PNG at three widths.
+The link preview image is an HTML template rendered by Playwright. The screenshots in the README
+and this walkthrough are the real app too: `scripts/build-screens.mjs` opens the production build
+with the sample family, sets up each screen, captures it in both themes, and shrinks it with sharp.
 
 ## The wordmark
 
