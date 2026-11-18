@@ -1,7 +1,7 @@
 import { useStore } from 'zustand'
 import { BRAND } from '../../brand'
 import { sideClass, useHome, useIndex, useSides } from '../../app/derive'
-import { effectiveTheme, useSettings } from '../../store/settings'
+import { useSettings } from '../../store/settings'
 import { redo, undo, useTree } from '../../store/treeStore'
 import { useUi, type SheetName, type Tab } from '../../store/uiStore'
 import { Avatar } from '../../ui/Avatar'
@@ -62,9 +62,7 @@ export function Corner() {
   const tab = useUi((s) => s.tab)
   const canUndo = useStore(useTree.temporal, (s) => s.pastStates.length > 0)
   const canRedo = useStore(useTree.temporal, (s) => s.futureStates.length > 0)
-  const theme = useSettings((s) => s.theme)
   const readOnly = useUi((s) => s.readOnly)
-  const dark = effectiveTheme(theme) === 'dark'
   return (
     <div className="corner">
       {!readOnly && (
@@ -108,17 +106,25 @@ export function Corner() {
             <GithubLogo />
           </a>
         )}
-        <button
-          type="button"
-          className="round"
-          aria-label={dark ? 'Switch to the light theme' : 'Switch to the dark theme'}
-          title="Light or dark"
-          onClick={() => useSettings.getState().setTheme(dark ? 'light' : 'dark')}
-        >
-          {dark ? <Sun /> : <Moon />}
-        </button>
+        <ThemeButton />
       </div>
     </div>
+  )
+}
+
+/** In the corner, and on its own on the start screen */
+export function ThemeButton() {
+  const dark = useSettings((s) => s.theme) === 'dark'
+  return (
+    <button
+      type="button"
+      className="round"
+      aria-label={dark ? 'Switch to the light theme' : 'Switch to the dark theme'}
+      title="Light or dark"
+      onClick={() => useSettings.getState().setTheme(dark ? 'light' : 'dark')}
+    >
+      {dark ? <Sun /> : <Moon />}
+    </button>
   )
 }
 

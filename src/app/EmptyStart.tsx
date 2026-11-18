@@ -1,4 +1,5 @@
 import { BRAND } from '../brand'
+import { ThemeButton } from '../features/chrome/Chrome'
 import { LeafPortrait } from '../ui/Avatar'
 import { Wordmark } from '../ui/Wordmark'
 import { FileArrowUp, TreeStructure } from '../ui/icons'
@@ -13,6 +14,11 @@ import { StartInfo } from './StartInfo'
 export function EmptyStart() {
   return (
     <main className="empty-start" aria-label="Start a family tree">
+      <div className="corner">
+        <div className="pillset">
+          <ThemeButton />
+        </div>
+      </div>
       <div className="start-col">
         <h1 className="empty-title">
           <Wordmark />

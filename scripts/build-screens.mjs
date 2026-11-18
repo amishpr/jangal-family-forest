@@ -65,6 +65,8 @@ const shots = [
 for (const [light, dark, setup] of shots) {
   for (const [scheme, file] of [['light', light], ['dark', dark]]) {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, colorScheme: scheme, reducedMotion: 'reduce' })
+    // The site is light unless dark was picked
+    await page.addInitScript((t) => localStorage.setItem('jangal:theme', t), scheme)
     await page.goto(`${base}/?sample`)
     await tile(page, 'ranbir').waitFor()
     // The sample's photos load after the tree shows: the 13 faces in the first view (TODO.md F17)

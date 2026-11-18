@@ -8,7 +8,7 @@ import { BUILT_IN_PACKS, cleanPack, editPack, packFor, type TitleKey, type Title
 // added (TODO.md F4). Kept in localStorage so the theme applies before the first paint (the inline
 // script in index.html reads the same key).
 
-export type ThemeChoice = 'system' | 'light' | 'dark'
+export type ThemeChoice = 'light' | 'dark'
 
 type Settings = {
   theme: ThemeChoice
@@ -37,7 +37,7 @@ export const THEME_KEY = 'jangal:theme'
 export const useSettings = create<Settings>()(
   persist(
     (set) => ({
-      theme: 'system',
+      theme: 'light',
       branchColors: true,
       titles: { lang: 'en', picks: {} },
       setTheme: (theme) => set({ theme }),
@@ -93,25 +93,18 @@ export const useSettings = create<Settings>()(
         const ok = typeof lang === 'string' && (lang === 'en' || !!packFor({ packs }, lang)) && typeof t?.picks === 'object' && t.picks !== null
         // Anything wrong goes back to English, keeping the family's packs that pass the checks
         const titles: Titles = { lang: ok ? lang : 'en', picks: ok ? t.picks! : {}, ...(Object.keys(packs).length ? { packs } : {}) }
-        return { ...current, ...s, titles }
+        // Light unless dark was picked. 'system' was the old default, so it becomes light too.
+        return { ...current, ...s, theme: s.theme === 'dark' ? 'dark' : 'light', titles }
       },
     },
   ),
 )
 
-const darkQuery = () => window.matchMedia('(prefers-color-scheme: dark)')
-
-export const effectiveTheme = (t: ThemeChoice): 'light' | 'dark' =>
-  t === 'system' ? (darkQuery().matches ? 'dark' : 'light') : t
-
 /** Keeps <html data-theme> and the pre-paint key in step with the setting */
 export function applyTheme(t: ThemeChoice) {
-  const root = document.documentElement
-  if (t === 'system') root.removeAttribute('data-theme')
-  else root.dataset.theme = t
+  document.documentElement.dataset.theme = t
   try {
-    if (t === 'system') localStorage.removeItem(THEME_KEY)
-    else localStorage.setItem(THEME_KEY, t)
+    localStorage.setItem(THEME_KEY, t)
   } catch {
     // Private mode: the theme still applies for this visit
   }

@@ -32,12 +32,13 @@
     <meta name="twitter:image" content="%VITE_SITE_URL%/og/%VITE_OG_IMAGE%" />
     <meta name="twitter:image:alt" content="A family tree in Jangal, with the path from Ranbir to his cousin Kareena highlighted" />
     <!--jsonld-->
-    <!-- A theme picked in the app applies before the first paint, so it never flashes the other one -->
+    <!-- Light by default. A theme picked in the app applies before the first paint, so it never flashes the other one -->
     <script>
+      var t = 'light'
       try {
-        var t = localStorage.getItem('jangal:theme')
-        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t)
+        if (localStorage.getItem('jangal:theme') === 'dark') t = 'dark'
       } catch (e) {}
+      document.documentElement.setAttribute('data-theme', t)
     </script>
   </head>
   <body>

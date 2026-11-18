@@ -16,7 +16,10 @@ async function scan(page: Page, exclude?: string) {
 
 for (const scheme of ['light', 'dark'] as const) {
   test.describe(`${scheme} theme`, () => {
-    test.use({ colorScheme: scheme })
+    // The site is light unless dark was picked, so pick it the way the app stores it
+    test.beforeEach(async ({ page }) => {
+      await page.addInitScript((t) => localStorage.setItem('jangal:theme', t), scheme)
+    })
 
     test('the start screen at /', async ({ page }) => {
       await page.goto('/')
