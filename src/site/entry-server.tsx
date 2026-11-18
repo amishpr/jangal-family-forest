@@ -10,11 +10,11 @@ import { setBase } from './links'
 
 export type Page = 'privacy' | 'notFound' | 'start'
 
-export function render(page: Page, opts: { base: string; repoUrl: string }): string {
+export function render(page: Page, opts: { base: string }): string {
   setBase(opts.base)
   if (page === 'start') return renderToStaticMarkup(<StartInfo />)
-  if (page === 'privacy') return renderToStaticMarkup(<Privacy repoUrl={opts.repoUrl} />)
-  return renderToStaticMarkup(<NotFound repoUrl={opts.repoUrl} />)
+  if (page === 'privacy') return renderToStaticMarkup(<Privacy />)
+  return renderToStaticMarkup(<NotFound />)
 }
 
 /** The backup file format as JSON Schema, published at /schema/v1.json (PLAN 8.10) */

@@ -10,7 +10,6 @@ const root = new URL('..', import.meta.url)
 const dist = new URL('dist/', root)
 const base = process.env.BASE_PATH ?? '/'
 const site = (process.env.SITE_URL || process.env.URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '') || 'http://localhost:5199').replace(/\/+$/, '')
-const repoUrl = (process.env.VITE_REPO_URL ?? '').trim()
 const og = JSON.parse(await readFile(new URL('src/site/og.json', root), 'utf8'))
 
 const ssr = existsSync(new URL('dist-ssr/entry-server.js', root)) ? 'dist-ssr/entry-server.js' : 'dist-ssr/entry-server.mjs'
@@ -50,7 +49,7 @@ for (const [name, file] of PAGES) {
   let html = await readFile(path, 'utf8')
   const marker = `<!--site:${name}-->`
   if (!html.includes(marker)) throw new Error(`${file} lost its ${marker} marker`)
-  html = html.replace(marker, render(name, { base, repoUrl }))
+  html = html.replace(marker, render(name, { base }))
 
   // Inline the stylesheet, and preload the Latin fonts it uses first
   const links = [...html.matchAll(/<link rel="stylesheet"[^>]*href="([^"]+\.css)"[^>]*>/g)]
@@ -79,7 +78,7 @@ for (const [name, file] of PAGES) {
   html = html.replace(/<script type="module"/, `${preload}\n    <script type="module"`)
   for (const marker of ['<!--jsonld-->', '<!--site:start-->']) if (!html.includes(marker)) throw new Error(`index.html lost its ${marker} marker`)
   html = html.replace('<!--jsonld-->', `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`)
-  html = html.replace('<!--site:start-->', render('start', { base, repoUrl }))
+  html = html.replace('<!--site:start-->', render('start', { base }))
   await writeFile(path, html)
   console.log('index.html: fonts preloaded, JSON-LD and the start screen text added')
 }

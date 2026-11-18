@@ -269,8 +269,8 @@ The same `npm run build` works on all three hosts, and nothing in `src/` knows w
 Set `SITE_URL` to the site's address (for example `https://jangal.family`) in the host's
 environment settings. Canonical links, the sitemap, and the preview tags use it. Without it, the
 build falls back to Netlify's `URL` or Vercel's `VERCEL_PROJECT_PRODUCTION_URL`, and a build on a
-host with no address at all fails rather than point those tags at localhost. Set `VITE_REPO_URL`
-to show a GitHub button in the app. Without it, the button isn't shown.
+host with no address at all fails rather than point those tags at localhost. The GitHub button
+links to the repository in `src/brand.ts`; set `VITE_REPO_URL` to point it somewhere else.
 
 - **Netlify** (the main host): connect the repository. `netlify.toml` sets the build, the
   headers, and the Lighthouse plugin. Deploy previews are built for pull requests, and they're

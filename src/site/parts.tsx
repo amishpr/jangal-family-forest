@@ -26,7 +26,7 @@ export function SiteHeader() {
   )
 }
 
-export function Footer({ repoUrl }: { repoUrl: string }) {
+export function Footer() {
   return (
     <footer className="site-foot">
       <p className="foot-brand">
@@ -38,7 +38,7 @@ export function Footer({ repoUrl }: { repoUrl: string }) {
       <nav aria-label="More">
         <a href={link()}>Open the app</a>
         <a href={link('privacy/')}>Privacy</a>
-        {repoUrl && <a href={repoUrl}>GitHub</a>}
+        {BRAND.repoUrl && <a href={BRAND.repoUrl}>GitHub</a>}
       </nav>
     </footer>
   )

@@ -3,7 +3,7 @@ import { link } from './links'
 
 // The 404 page (PLAN 10.1)
 
-export function NotFound({ repoUrl }: { repoUrl: string }) {
+export function NotFound() {
   return (
     <>
       <SiteHeader />
@@ -16,7 +16,7 @@ export function NotFound({ repoUrl }: { repoUrl: string }) {
           </a>
         </p>
       </main>
-      <Footer repoUrl={repoUrl} />
+      <Footer />
     </>
   )
 }

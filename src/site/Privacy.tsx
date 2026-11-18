@@ -3,7 +3,7 @@ import { link } from './links'
 
 // The privacy page (PLAN W-6): what happens to your data, in plain words
 
-export function Privacy({ repoUrl }: { repoUrl: string }) {
+export function Privacy() {
   return (
     <>
       <SiteHeader />
@@ -54,7 +54,7 @@ export function Privacy({ repoUrl }: { repoUrl: string }) {
           </a>
         </p>
       </main>
-      <Footer repoUrl={repoUrl} />
+      <Footer />
     </>
   )
 }

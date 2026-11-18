@@ -13,6 +13,6 @@ export const BRAND = {
     "Jangal (જંગલ) is Gujarati and Hindi for forest. It's the old joke about Indian families: we don't have a family tree, we have a family forest. This is a place to map yours, see how everyone in it is connected, and share it with them.",
   /** Backups end in .jangal.json, and calendars say PRODID:-//Jangal//Birthdays//EN */
   slug: 'jangal',
-  /** The GitHub button is only shown when the build sets VITE_REPO_URL (PLAN A-9) */
-  repoUrl: (import.meta.env.VITE_REPO_URL as string | undefined)?.trim() || '',
+  /** The GitHub button and links (PLAN A-9). A build can point them elsewhere with VITE_REPO_URL. */
+  repoUrl: (import.meta.env.VITE_REPO_URL as string | undefined)?.trim() || 'https://github.com/amishpr/jangal-family-forest',
 } as const
