@@ -11,7 +11,8 @@ and notes, and connect them as parents, partners, children, and siblings. Then y
 over someone and their immediate family lights up, search for anyone and the app flies to them and
 lights the path from you, and ask "How are we related?" about any two people and get the answer in
 plain words, with every hop in between: Maya, her mother Priya, Priya's brother Arjun, his daughter
-Anika. Anika is Maya's first cousin.
+Anika. Anika is Maya's first cousin. It's live at
+[jangal-family-forest.vercel.app](https://jangal-family-forest.vercel.app/).
 
 <img alt="The sample family, the Kapoor family. Ranbir Kapoor is marked as you, and the How are we related sheet shows that Kareena Kapoor Khan is his first cousin, with the path between them lit on the tree" src="docs/screenshot-light.png">
 
@@ -39,8 +40,8 @@ a family tree, they have a family forest.
 
 **No server.** A family tree is private, personal data, and the app doesn't need a server to do
 anything it does. Keeping everything in the browser means there are no accounts, nothing to
-breach, nothing to pay for as it grows, and it deploys as static files to Netlify, Vercel, or
-GitHub Pages. The tree lives in IndexedDB. The cost is that the browser holds the only copy, so the
+breach, nothing to pay for as it grows, and it deploys as static files. Vercel is the main host,
+and the same build also runs on Netlify and GitHub Pages. The tree lives in IndexedDB. The cost is that the browser holds the only copy, so the
 app asks the browser to keep its storage, makes backups one click away, and offers a backup
 download if saving ever fails.
 

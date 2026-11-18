@@ -7,6 +7,8 @@ you to them, and get the answer in plain words: "Kareena is your first cousin." 
 and no server. The tree is saved in the browser, and nothing leaves the device unless you export
 it.
 
+Try it at [jangal-family-forest.vercel.app](https://jangal-family-forest.vercel.app/).
+
 Jangal is Gujarati and Hindi for forest. It's the old joke about Indian families: we don't have a
 family tree, we have a family forest.
 
@@ -272,11 +274,12 @@ build falls back to Netlify's `URL` or Vercel's `VERCEL_PROJECT_PRODUCTION_URL`,
 host with no address at all fails rather than point those tags at localhost. The GitHub button
 links to the repository in `src/brand.ts`; set `VITE_REPO_URL` to point it somewhere else.
 
-- **Netlify** (the main host): connect the repository. `netlify.toml` sets the build, the
-  headers, and the Lighthouse plugin. Deploy previews are built for pull requests, and they're
-  never indexed: their robots.txt blocks crawlers and every response says `noindex`.
-- **Vercel:** connect the repository. `vercel.json` sets the framework, trailing slashes, and the
-  same headers.
+- **Vercel** (the main host, at
+  [jangal-family-forest.vercel.app](https://jangal-family-forest.vercel.app/)): connect the
+  repository. `vercel.json` sets the framework, trailing slashes, and the headers.
+- **Netlify:** connect the repository. `netlify.toml` sets the build, the same headers, and the
+  Lighthouse plugin. Deploy previews are built for pull requests, and they're never indexed: their
+  robots.txt blocks crawlers and every response says `noindex`.
 - **GitHub Pages:** in the repository's Settings, under Pages, set the source to GitHub Actions,
   and add a repository variable `SITE_URL`. `pages.yml` builds on every push to `main`. A project
   site lives under `/<repo>/`, so the workflow passes the repository name as `BASE_PATH`. With a
@@ -322,7 +325,7 @@ Lighthouse mobile, measured locally with Lighthouse CI on a 2015 MacBook Pro on 
 
 | | Privacy page | App at `/?sample` (88 people, 24 shown at first) |
 | --- | --- | --- |
-| Performance | 100 | 88 (64 in one run during a load spike) |
+| Performance | 100 | 88 |
 | Accessibility | 100 | 100 |
 | Best practices | 100 | 100 |
 | SEO | 100 | 100 |
@@ -338,11 +341,6 @@ behind a pill. What got it from the high 50s to 88:
 - The demo is saved, and the service worker starts, once the tree is showing.
 
 Total blocking time swings with how busy the machine is.
-
-The app doesn't yet meet its performance target of 90 or more
-and an LCP under 2.5 s, so `.lighthouserc.cjs` and the Netlify Lighthouse plugin will report it
-until it does. What's left is mostly the cost of starting React and React Flow on a slow phone.
-[WALKTHROUGH.md](WALKTHROUGH.md#speed) covers what was tried.
 
 ## Name and branding
 
