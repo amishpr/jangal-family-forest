@@ -29,7 +29,12 @@ describe('family title settings', () => {
     stored({ lang: 'hi', picks: { 'hi:father': 'Baba' } })
     await useSettings.persist.rehydrate()
     expect(useSettings.getState().titles).toEqual({ lang: 'hi', picks: { 'hi:father': 'Baba' } })
+    // The theme comes from its own key, not the settings (stored() saves 'dark' there)
+    expect(useSettings.getState().theme).toBe('light')
+    localStorage.setItem('jangal:theme', 'dark')
+    await useSettings.persist.rehydrate()
     expect(useSettings.getState().theme).toBe('dark')
+    localStorage.removeItem('jangal:theme')
 
     for (const bad of [{ lang: 'fr', picks: {} }, { lang: 'gu', picks: null }, { lang: 'gu' }, 'gu']) {
       useSettings.setState({ titles: { lang: 'en', picks: {} } })

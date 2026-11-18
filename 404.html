@@ -11,6 +11,31 @@
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/src/site/site.css" />
+    <!-- Light by default, or the theme picked in the app or here. Also runs the theme button. -->
+    <script>
+      ;(function () {
+        var root = document.documentElement
+        var t = 'light'
+        try {
+          if (localStorage.getItem('jangal:theme') === 'dark') t = 'dark'
+        } catch (e) {}
+        function show() {
+          root.setAttribute('data-theme', t)
+          var b = document.querySelector('.theme-toggle')
+          if (b) b.setAttribute('aria-pressed', String(t === 'dark'))
+        }
+        show()
+        document.addEventListener('DOMContentLoaded', show)
+        document.addEventListener('click', function (e) {
+          if (!e.target.closest || !e.target.closest('.theme-toggle')) return
+          t = t === 'dark' ? 'light' : 'dark'
+          show()
+          try {
+            localStorage.setItem('jangal:theme', t)
+          } catch (e) {}
+        })
+      })()
+    </script>
   </head>
   <body>
     <!--site:notFound-->

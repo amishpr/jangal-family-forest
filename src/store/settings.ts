@@ -5,8 +5,9 @@ import { BUILT_IN_PACKS, cleanPack, editPack, packFor, type TitleKey, type Title
 
 // Settings that belong to this browser rather than to a tree (PLAN A-4): the theme, whether branch
 // colors are on, and the family titles (FAMILY-RELATIONS.MD), with any title packs this family
-// added (TODO.md F4). Kept in localStorage so the theme applies before the first paint (the inline
-// script in index.html reads the same key).
+// added (TODO.md F4). The theme has its own localStorage key, which the inline scripts in index.html,
+// privacy/index.html and 404.html also read and write, so it applies before the first paint and a
+// pick on any page holds everywhere.
 
 export type ThemeChoice = 'light' | 'dark'
 
@@ -34,10 +35,18 @@ type Settings = {
 
 export const THEME_KEY = 'jangal:theme'
 
+const storedTheme = (): ThemeChoice => {
+  try {
+    return localStorage.getItem(THEME_KEY) === 'dark' ? 'dark' : 'light'
+  } catch {
+    return 'light'
+  }
+}
+
 export const useSettings = create<Settings>()(
   persist(
     (set) => ({
-      theme: 'light',
+      theme: storedTheme(),
       branchColors: true,
       titles: { lang: 'en', picks: {} },
       setTheme: (theme) => set({ theme }),
@@ -78,7 +87,7 @@ export const useSettings = create<Settings>()(
     {
       name: 'jangal:settings',
       storage: createJSONStorage(() => localStorage),
-      partialize: (s) => ({ theme: s.theme, branchColors: s.branchColors, titles: s.titles }),
+      partialize: (s) => ({ branchColors: s.branchColors, titles: s.titles }),
       // Anything can be in localStorage: packs are checked like an uploaded file, and titles that
       // don't look right go back to English
       merge: (stored, current) => {
@@ -93,8 +102,8 @@ export const useSettings = create<Settings>()(
         const ok = typeof lang === 'string' && (lang === 'en' || !!packFor({ packs }, lang)) && typeof t?.picks === 'object' && t.picks !== null
         // Anything wrong goes back to English, keeping the family's packs that pass the checks
         const titles: Titles = { lang: ok ? lang : 'en', picks: ok ? t.picks! : {}, ...(Object.keys(packs).length ? { packs } : {}) }
-        // Light unless dark was picked. 'system' was the old default, so it becomes light too.
-        return { ...current, ...s, theme: s.theme === 'dark' ? 'dark' : 'light', titles }
+        // Older saves carry a theme too: the theme key wins
+        return { ...current, ...s, theme: storedTheme(), titles }
       },
     },
   ),

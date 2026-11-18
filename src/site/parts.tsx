@@ -1,5 +1,6 @@
 import { BRAND } from '../brand'
 import { Wordmark } from '../ui/Wordmark'
+import { Moon, Sun } from '../ui/icons'
 import { link } from './links'
 
 // Pieces shared by the public pages: the header and the footer
@@ -11,9 +12,16 @@ export function SiteHeader() {
         <Wordmark />
         <span className="sub">- {BRAND.sub}</span>
       </a>
-      <a className="chunky" href={link()}>
-        Open the app
-      </a>
+      <div className="head-actions">
+        {/* Wired up by the inline script in the page's head. The icon shows the theme it switches to. */}
+        <button type="button" className="theme-toggle" aria-label="Dark theme" aria-pressed="false" title="Light or dark">
+          <Moon className="to-dark" />
+          <Sun className="to-light" />
+        </button>
+        <a className="chunky" href={link()}>
+          Open the app
+        </a>
+      </div>
     </header>
   )
 }
