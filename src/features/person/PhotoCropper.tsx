@@ -1,17 +1,21 @@
 import { useMemo, useState } from 'react'
 import Cropper, { type Area } from 'react-easy-crop'
-import { toast } from '../../app/actions'
 import { Check } from '../../ui/icons'
-import { loadImage, savePhoto } from './photo'
+import { loadImage } from './image'
 
-// A square crop with zoom (PLAN P-4). Only loaded when someone picks a photo.
+// A square crop with zoom (PLAN P-4). Only loaded when someone picks a photo. It hands the crop to
+// onCrop, so the person card saves it in the app and the fill-in page keeps it in its answers
+// (SHARE.md SH-8). It uses no stores.
 
-export default function PhotoCropper({ file, personId, onDone }: { file: File; personId: string; onDone: () => void }) {
+type Props = { file: File; onCrop: (img: HTMLImageElement, area: Area) => Promise<void>; onDone: () => void }
+
+export default function PhotoCropper({ file, onCrop, onDone }: Props) {
   const src = useMemo(() => URL.createObjectURL(file), [file])
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
   const [area, setArea] = useState<Area | null>(null)
   const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Let go of the picture when the cropper closes
   const close = () => {
@@ -22,13 +26,12 @@ export default function PhotoCropper({ file, personId, onDone }: { file: File; p
   const save = async () => {
     if (!src || !area) return
     setBusy(true)
+    setError(null)
     try {
-      const img = await loadImage(src)
-      await savePhoto(personId, img, area)
-      toast('Photo saved')
+      await onCrop(await loadImage(src), area)
       close()
     } catch (err) {
-      toast(err instanceof Error ? err.message : "That photo couldn't be saved")
+      setError(err instanceof Error ? err.message : "That photo couldn't be saved")
       setBusy(false)
     }
   }
@@ -57,6 +60,11 @@ export default function PhotoCropper({ file, personId, onDone }: { file: File; p
             Zoom
             <input type="range" min={1} max={4} step={0.01} value={zoom} onChange={(e) => setZoom(Number(e.target.value))} aria-label="Zoom" />
           </label>
+          {error && (
+            <p className="field-err" role="alert">
+              {error}
+            </p>
+          )}
         </div>
       </div>
       <div className="pop-foot">

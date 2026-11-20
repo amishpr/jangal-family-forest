@@ -13,6 +13,7 @@ import { Camera, Check, Trash, X } from '../../ui/icons'
 import { PartialDateField } from './PartialDateField'
 import { readPartialDate } from './readPartialDate'
 import { PhotoInput } from './PhotoInput'
+import { savePhoto } from './photo'
 import { TraitsField } from './TraitsField'
 import { cleanTraits } from '../../core/traits'
 
@@ -249,7 +250,14 @@ export default function CardEdit({ person: p }: { person: Person }) {
           </div>
         </div>
         <Suspense fallback={<div className="pop-body">Opening the photo</div>}>
-          <PhotoCropper file={cropFile} personId={id} onDone={() => setCropFile(null)} />
+          <PhotoCropper
+            file={cropFile}
+            onCrop={async (img, area) => {
+              await savePhoto(id, img, area)
+              toast('Photo saved')
+            }}
+            onDone={() => setCropFile(null)}
+          />
         </Suspense>
       </div>
     )
