@@ -115,6 +115,18 @@ export const TreeFileSchema = z.object({
     .object({ lang: z.string().max(20), picks: z.record(z.string().max(80), z.string().max(40)).catch({}), pack: z.unknown().optional() })
     .optional()
     .catch(undefined),
+  // A relative's answers from a fill-in link (SHARE.md SH-11). Checked against the tree it's for
+  // when it's imported (SH-13), so here it only has to be well formed.
+  reply: z
+    .object({
+      treeId: IdSchema,
+      treeTitle: text(200).catch(''),
+      forId: IdSchema,
+      known: z.array(IdSchema).max(200).catch([]),
+      sentAt: z.string().max(40).catch(''),
+    })
+    .optional()
+    .catch(undefined),
 })
 
 export type TreeFile = z.infer<typeof TreeFileSchema>
@@ -181,6 +193,10 @@ export function repairTree(file: TreeFile): { doc: ExportedTree; warnings: strin
   const doc: ExportedTree = { ...file, people, families, homePersonId, view } as ExportedTree
   if (!doc.subtitle) delete doc.subtitle
   if (!doc.photos) delete doc.photos
+  // A reply has to name its person, and only names people who are in it
+  if (doc.reply && !people[doc.reply.forId]) delete doc.reply
+  else if (doc.reply) doc.reply = { ...doc.reply, known: doc.reply.known.filter((id) => people[id]) }
+  else delete doc.reply
   if (!doc.titles) delete doc.titles
   else if (doc.titles.pack !== undefined) {
     const r = cleanPack(doc.titles.pack)

@@ -6,7 +6,7 @@ import { SCHEMA_VERSION } from './model'
 
 export const SCHEMA_URL = '/schema/v1.json'
 
-const TREE_KEYS = ['$schema', 'schemaVersion', 'id', 'title', 'titleAuto', 'subtitle', 'showStats', 'homePersonId', 'people', 'families', 'view', 'meta', 'titles', 'photos']
+const TREE_KEYS = ['$schema', 'schemaVersion', 'id', 'title', 'titleAuto', 'subtitle', 'showStats', 'homePersonId', 'reply', 'people', 'families', 'view', 'meta', 'titles', 'photos']
 const PERSON_KEYS: (keyof Person)[] = [
   'id', 'firstName', 'middleName', 'lastName', 'birthSurname', 'nickname', 'calledBy', 'calledByFrom', 'gender', 'genderOther', 'species',
   'birth', 'death', 'deceased', 'livesIn', 'photoId', 'notes', 'tags', 'createdAt', 'updatedAt',
@@ -31,6 +31,9 @@ export function treeToJson(tree: ExportedTree, schemaUrl = SCHEMA_URL): string {
   const ordered = pick({ $schema: schemaUrl, ...tree, schemaVersion: SCHEMA_VERSION, people, families }, TREE_KEYS)
   return JSON.stringify(ordered, null, 2) + '\n'
 }
+
+/** Text written into HTML, so a name or a note can never become markup */
+export const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
 
 /**
  * Data inside an exported HTML page lives in a <script type="application/json"> block. Every "<"

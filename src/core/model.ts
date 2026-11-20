@@ -85,9 +85,16 @@ export type PhotoMime = 'image/webp' | 'image/jpeg' | 'image/png'
 /** The family titles a backup or family page can carry (TODO.md TP-8). The pack is checked when it's used. */
 export type ExportedTitles = { lang: string; picks: Record<string, string>; pack?: unknown }
 
+/**
+ * A relative's answers from a fill-in link (SHARE.md SH-11): which tree they're for, who was asked,
+ * and the ids that came from the link, so the review can match those people without guessing.
+ */
+export type ReplyInfo = { treeId: string; treeTitle: string; forId: string; known: string[]; sentAt: string }
+
 export type ExportedTree = TreeDoc & {
   photos?: Record<string, { mime: PhotoMime; data: string }>
   titles?: ExportedTitles
+  reply?: ReplyInfo
 }
 
 export const emptyView = (): TreeView => ({ collapsedFamilies: [], collapsedAncestors: [], direction: 'down' })

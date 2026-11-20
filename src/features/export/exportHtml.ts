@@ -2,7 +2,7 @@ import gujaratiFont from '@fontsource-variable/noto-sans-gujarati/files/noto-san
 import { stamp } from '../../core/dates'
 import type { ExportedTree } from '../../core/model'
 import { isLiving } from '../../core/model'
-import { embedJson, treeToJson } from '../../core/treeFile'
+import { embedJson, escapeHtml, treeToJson } from '../../core/treeFile'
 import { currentTreeDoc } from '../../store/treeStore'
 import { blobToBase64, buildExport, fileBase } from './exportJson'
 import { download } from './download'
@@ -21,8 +21,6 @@ export type PageOptions = {
   /** Open as the person marked as you, or neutrally */
   openAs: 'me' | 'neutral'
 }
-
-const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
 
 export function applyPrivacy(tree: ExportedTree, opts: Pick<PageOptions, 'hideLiving' | 'openAs' | 'traits'>): ExportedTree {
   const out: ExportedTree = { ...tree, people: { ...tree.people } }
