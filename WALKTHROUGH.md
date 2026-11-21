@@ -38,6 +38,14 @@ them a link to fill in their own.
 The name is a family joke. Jangal is Gujarati and Hindi for forest, and Indian families don't have
 a family tree, they have a family forest.
 
+## Using the app
+
+A tree is built on the tree itself. There's no form to fill in first: a quick card opens inside
+the new tile for a name, a gender, and a birthday, and every tile has + buttons for its relatives.
+Each new person shows up already labeled with how they're related to you.
+
+<img alt="A wireflow of starting a tree in six steps: the start page with Start with you, the quick card for your own name, your tile with + buttons for a parent, partner, child and sibling, the quick card for a new parent, the tree grown to three generations with each tile labeled Father, Mother, Brother, Grandfather or Grandmother, and Kiran Patel's card with his parents and partner as links" src="docs/wireflow-tree.png">
+
 ## Why it is built this way
 
 **No server.** A family tree is private, personal data, and the app doesn't need a server to do
@@ -265,24 +273,52 @@ The person who knows a cousin's birthday best is the cousin. From anyone's card,
 writes a link to a small fill-in page, where they check their details, add a photo, and add their
 partner and children. With no server, the link and the reply have to carry the data themselves.
 
-<table>
-<tr>
-<td width="50%">
-<img alt="The Ask Kareena to fill in sheet, saying the link holds only names and the tree's title, with the message and the link" src="docs/ask-light.png">
-</td>
-<td width="50%">
-<img alt="The fill-in page on a phone: Hi Kareena!, her photo, her name fields, and a Send to Ranbir button" src="docs/fill-in-light.png">
-</td>
-</tr>
-</table>
+<img alt="A wireflow of asking Kareena to fill in her details, in two lanes. On your computer: her card with Make a link, then the Ask sheet with the message and the link. The link goes to Kareena's phone, where she fills in the form with her photo, then sends, and her answers are saved as a file. The reply file comes back to the review on your computer, with each change ticked, and then the combined tree with her son Taimur added. A note says there's no server in between" src="docs/wireflow-ask.png">
+
+Underneath, it's a round trip between two browsers. The only server involved hands out the fill-in
+page's files, and never sees what's in the link:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    box Your computer
+        actor You
+        participant App as Jangal
+    end
+    participant Chat as WhatsApp, text or email
+    box Kareena's phone
+        actor Kareena
+        participant Page as Fill-in page
+    end
+    participant Host as Static host
+
+    You->>App: Make a link, on Kareena's card
+    App->>App: Names only, as JSON, deflated, then base64url
+    App->>Chat: https://www.jangaltree.com/add/#35;z=eJxN...
+    Chat->>Kareena: The link
+    Kareena->>Page: Opens it
+    Page->>Host: GET /add/ (the part after the #35; never leaves her browser)
+    Host-->>Page: The page's files, with connect-src 'none'
+    Page->>Page: Inflates and checks the link, fills in the names
+    Kareena->>Page: Checks her details, adds a photo and her son
+    Page->>Page: Keeps a draft in localStorage as she types
+    Kareena->>Page: Send
+    Page->>Page: Her answers as a Jangal file, inside a page with no scripts
+    Page->>Chat: The share sheet (navigator.share), or a download
+    Chat->>You: kareena-kapoor-khan-reply.html
+    You->>App: Import the file
+    App->>App: Zod checks it, people match by id, diffPeople lists each change
+    You->>App: Ticks the changes, then Combine
+    App->>App: mergeTrees in one undo step, then saved to IndexedDB
+```
 
 - **The link.** `src/core/askLink.ts` puts a little JSON in the link: who is asked, who is asking,
   the tree's title, and the names of the partners and children the tree already has, so the
   relative checks them instead of typing them again. Names only, with no dates, places, notes, or
-  photos. It's encoded as UTF-8 and then base64url, so Gujarati names survive being pasted around,
-  and it goes after the `#`, which browsers never send to the server. Anyone can write a link by
-  hand, so reading one checks everything, and a link cut short by a messaging app says so instead
-  of showing an empty form.
+  photos. It's encoded as UTF-8, deflated with the browser's own `CompressionStream`, and written as
+  base64url, so Gujarati names survive being pasted around. It goes after the `#`, which browsers
+  never send to the server. Anyone can write a link by hand, so reading one checks everything, and
+  a link cut short by a messaging app says so instead of showing an empty form.
 - **The page.** `/add/` is its own small entry in the build, about 80 KB of JavaScript before a
   photo is picked, so it opens quickly on a phone with a weak signal. It reuses the person card's
   fields and the app's photo cropper, which meant moving the cropping and canvas helpers out of
@@ -306,8 +342,6 @@ partner and children. With no server, the link and the reply have to carry the d
   can't reach anyone else by id; anyone else it names is matched by name, like any other file.
   `diffPeople` in `src/core/merge.ts` lists each field that differs, with photos side by side, and
   a reply's answers start ticked. Blank fields are simply filled in. Combine is one undo step.
-
-<img alt="Kareena's reply in the review: Kareena and Saif ticked as already in the tree, her new birthplace ticked as a change, and her son Taimur listed as new" src="docs/reply-light.png">
 
 ## Printing the Timeline and the Fan chart
 
@@ -353,6 +387,9 @@ writes a Content Security Policy onto every page, allowing each page's inline sc
 The link preview image is an HTML template rendered by Playwright. The screenshots in the README
 and this walkthrough are the real app too: `scripts/build-screens.mjs` opens the production build
 with the sample family, sets up each screen, captures it in both themes, and shrinks it with sharp.
+The wireflows are made the same way: the script runs each flow for real, from a new tree or Kareena's
+card, captures every step as it happens, and lays the steps out with `scripts/wireflow.html`, which
+draws the arrows from where the steps actually land.
 
 ## The wordmark
 
@@ -511,6 +548,16 @@ makes React build a fresh form.
 
 **A focus ring printed.** A fan wedge clicked just before Cmd+P printed with its focus ring
 around it. Paper has no keyboard focus, so focus rings are turned off in print.
+
+**Gmail put the request in spam.** The first test email asking a relative to fill in their details
+went straight to spam. Most of that was the test itself: the link pointed at a laptop on the home
+network (`http://192.168…:5199`), and a bare IP address with a port is a classic phishing sign.
+The rest was the message. It was one sentence asking someone to "check your details" next to a
+long link of random letters, under the subject "Our family tree". It's now a short letter that
+names the people already filled in and ends with the sender's name, under a subject that names
+the person and the tree. The link's data is deflated, which makes it 40 to 50% shorter, and links
+from before that still open. The email stays plain text: a styled email with images from a new
+domain looks even more like a template.
 
 ## What changed from the plan
 

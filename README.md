@@ -215,7 +215,8 @@ scripts/
   finish-viewer.mjs              Hashes the family page's scripts into its CSP
   ensure-viewer.mjs              Builds the family page template before `npm run dev` if it's missing
   build-wordmark.mjs             Turns "Jangal (જંગલ)" into SVG paths with HarfBuzz
-  build-og.mjs, build-screens.mjs, build-icons.mjs   The preview image, the README screenshots, the icons
+  build-og.mjs, build-screens.mjs, build-icons.mjs   The preview image, the screenshots and wireflows, the icons
+  wireflow.html                  The layout build-screens.mjs draws the WALKTHROUGH wireflows with
   fetch-pdf-fonts.mjs            Downloads the TTF fonts the PDF embeds
   build-sample-photos.mjs        Fetches the sample family's free photos from Wikimedia Commons (run by hand)
   gen-host-config.mjs            Writes deploy/headers.json into netlify.toml and vercel.json
@@ -295,7 +296,7 @@ npx playwright@1.48 install chromium
 - `npm run size` checks the size budgets against the last build
 - `npm run lhci` runs Lighthouse CI against the last build
 - `npm run wordmark`, `npm run og`, `npm run screens`, and `npm run icons` regenerate the
-  wordmark, the preview image, the screenshots in `docs/`, and the app icons (run
+  wordmark, the preview image, the screenshots and wireflows in `docs/`, and the app icons (run
   `npm run build` before `npm run screens`, and `npm run screens -- fan ask` makes only the
   screenshots whose names start with those words)
 - `npm run icon-paths` writes the drawings of the interface icons listed in `src/ui/icons.ts`
