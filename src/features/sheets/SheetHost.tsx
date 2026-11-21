@@ -17,6 +17,7 @@ const SHEETS: Partial<Record<SheetName, LazyExoticComponent<ComponentType>>> = {
     : {
         export: lazy(() => import('../export/ShareSheet')),
         import: lazy(() => import('../import/ImportSheet')),
+        ask: lazy(() => import('../person/AskSheet')),
       }),
 }
 

@@ -696,6 +696,83 @@
     font-weight: 600;
   }
 
+  /* Asking someone to fill in (SHARE.md SH-2), and reviewing their reply (SH-14) */
+  .ask-holds {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: var(--mint-2);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .ask-holds > svg {
+    flex: none;
+    font-size: 18px;
+    margin-top: 1px;
+    color: var(--leaf-deep);
+  }
+  .ask-sheet .fields {
+    display: grid;
+    gap: 10px;
+  }
+  .ask-sheet label,
+  .ask-sheet .fl {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ink-2);
+    display: grid;
+    gap: 4px;
+  }
+  .ask-msg {
+    margin: 0;
+    padding: 12px 14px;
+    border-radius: 16px;
+    border: 2px dashed var(--field);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--ink-2);
+    overflow-wrap: anywhere;
+    user-select: text;
+  }
+  a.chunky {
+    text-decoration: none;
+  }
+  .merge-sub {
+    font: 800 15px var(--font-display);
+    color: var(--ink);
+    margin-top: 4px;
+  }
+  .merge-list .photo-swap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    color: var(--ink-3);
+  }
+  .merge-list .photo-swap img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .merge-list .new {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 14px;
+    background: var(--tile);
+  }
+  @media (max-width: 520px) {
+    .ask-sheet .two {
+      grid-template-columns: 1fr;
+    }
+  }
+
   @media (max-width: 760px) {
     .slots {
       grid-template-columns: 1fr;

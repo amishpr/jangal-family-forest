@@ -181,6 +181,13 @@ export function relateWith(id: string) {
   else ui.setPath(null)
 }
 
+/** "Ask Kareena to fill in" from a person's card (SHARE.md SH-1): the sheet that makes the link */
+export function askToFillIn(id: string) {
+  const ui = useUi.getState()
+  useUi.setState({ askFor: id })
+  ui.openSheet('ask')
+}
+
 /** Find flies to someone in whatever view is open (PLAN A-7) */
 export function goTo(id: string) {
   const ui = useUi.getState()

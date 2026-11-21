@@ -77,6 +77,11 @@ behind it, the library choices, and the bugs that came up along the way are in
 - **Import.** A backup, a family page someone sent you, a GEDCOM file from Ancestry,
   FamilySearch, or MyHeritage, or a spreadsheet (.xlsx or .csv). There's a template to fill in, with an example
   family. You see what's in the file before anything changes, row by row for a spreadsheet.
+- **Ask the family.** From someone's card, make a link and send it by WhatsApp, text or email. It
+  opens a small page where they check their details, add photos, and add their partner and
+  children, on any phone. Nothing is uploaded: their answers come back as a small file, and Import
+  shows every change before it's made, matched to the right people by the link, not by name. One
+  Undo takes it all back.
 - **Combine two trees.** Add a file a cousin sent, or another tree in this browser, to the open
   one. You tick who is in both, they become one person, everyone else is added, and anything that
   doesn't line up is listed. One Undo takes it all back.
@@ -161,6 +166,7 @@ All of these show the sample family in the light theme, and `npm run screens` ma
 
 ```
 index.html                       The app's page, at "/"
+add/index.html                   The fill-in page a relative opens from a link
 app/index.html                   Sends old links to /app/ on to "/", query and all
 privacy/, 404.html               The static pages, rendered to HTML at build time
 viewer.html                      The family page template (a separate, single file build)
@@ -199,7 +205,8 @@ src/
     collapse.ts                  Tucking branches away
     layout/layout.ts             The tree layout
     edit.ts                      Adding, linking, editing, and removing people
-    merge.ts                     Combining two trees: who is in both, and joining them
+    merge.ts                     Combining two trees: who is in both, what differs, and joining them
+    askLink.ts, reply.ts         The fill-in link, and a relative's reply as a file
     title.ts, dates.ts, search.ts, calendar.ts
     schema.ts, migrate.ts, importTree.ts, treeFile.ts   The backup format, its checks and migrations
     gedcom/                      The GEDCOM parser, date reader, and mapping
@@ -216,6 +223,7 @@ src/
     timeline/, fan/              The Timeline and Fan chart tabs
     export/, import/             Sharing, the PDF and picture renderers, importing, and combining trees
     sheets/                      The sheet frame, the people picker, and "Who are you?"
+  add/                           The fill-in page: the form, its draft, and sending the reply
   site/                          The privacy and 404 pages, and the server render entry
   viewer/main.tsx                The family page's entry point
   styles/                        Tokens and the app's CSS
@@ -293,6 +301,8 @@ links to the repository in `src/brand.ts`; set `VITE_REPO_URL` to point it somew
 - `/app/` is a tiny page that opens `/` with the same query, so old links and `/app/?sample` still
   work on every host, GitHub Pages included. It's marked `noindex`.
 - `/privacy/` and the 404 page are static HTML, with no JavaScript bundle.
+- `/add/` is the fill-in page relatives open from a link. It's marked `noindex`, left out of the
+  sitemap and the service worker, and its policy says `connect-src 'none'`.
 - The sitemap lists `/` and `/privacy/`, and Lighthouse CI checks both.
 
 ## Privacy
@@ -313,7 +323,8 @@ Budgets, checked by `npm run size` (compressed with Brotli):
 | The app's HTML page | 10 KB | 2 KB |
 | Privacy page HTML with its CSS inlined | 25 KB | 6.6 KB |
 | App JavaScript on first load (16 files) | 200 KB | 159 KB |
-| App CSS | 25 KB | 13.4 KB |
+| App CSS | 25 KB | 13.9 KB |
+| Fill-in page JavaScript, before a photo is picked | 90 KB | 80 KB |
 | Fonts, Latin only | 70 KB | 61.5 KB |
 
 The privacy and 404 pages send no JavaScript at all. In the app, the sample family, the Timeline

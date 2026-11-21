@@ -5,7 +5,7 @@ import type { RelativeType } from '../core/edit'
 // tab. None of it is saved, except the tab, which lives in the URL (?view=timeline).
 
 export type Tab = 'tree' | 'timeline' | 'fan'
-export type SheetName = 'me' | 'find' | 'relate' | 'bdays' | 'export' | 'about' | 'shortcuts' | 'import' | 'titles'
+export type SheetName = 'me' | 'find' | 'relate' | 'bdays' | 'export' | 'about' | 'shortcuts' | 'import' | 'titles' | 'ask'
 export type Rect = { left: number; right: number; top: number; bottom: number }
 
 export type Toast = { id: number; message: string; action?: { label: string; run: () => void } }
@@ -32,6 +32,8 @@ type UiState = {
   editingTitle: boolean
   /** The trait lit on the tree, like "Left-handed" (TODO.md F2) */
   trait: string | null
+  /** Who the Ask sheet makes a fill-in link for (SHARE.md SH-2) */
+  askFor: string | null
   toast: Toast | null
   save: 'idle' | 'saving' | 'saved' | 'error'
 
@@ -65,6 +67,7 @@ export const useUi = create<UiState>()((set, get) => ({
   namingFrom: null,
   editingTitle: false,
   trait: null,
+  askFor: null,
   toast: null,
   save: 'idle',
 

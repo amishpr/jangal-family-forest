@@ -53,10 +53,12 @@ export async function commitImport(tree: ExportedTree, mode: 'new' | 'replace') 
   const current = currentTreeDoc()
   const id = mode === 'replace' && current ? current.id : nanoid(10)
   const people = await importPhotos(tree)
-  // Photos are stored on their own, and family titles belong to the browser, not the tree
-  const { photos: _photos, titles: _titles, ...rest } = tree
+  // Photos are stored on their own, family titles belong to the browser, not the tree, and a reply's
+  // note of who it was for (SHARE.md SH-11) means nothing once it's a tree of its own
+  const { photos: _photos, titles: _titles, reply: _reply, ...rest } = tree
   void _photos
   void _titles
+  void _reply
   const doc: TreeDoc = {
     ...rest,
     id,
