@@ -42,7 +42,8 @@ const idle = () => new Promise<void>((r) => ('requestIdleCallback' in window ? r
  */
 export async function openNewTree(doc: TreeDoc, opts: { saveWhenIdle?: boolean } = {}) {
   useTree.getState().load(doc)
-  useUi.setState({ card: null, path: null, sheet: null, hover: null, naming: null, editingTitle: false, trait: null })
+  // The start page closes too: a tree opened from it shows straight away
+  useUi.setState({ card: null, path: null, sheet: null, hover: null, naming: null, editingTitle: false, trait: null, startPage: false })
   if (opts.saveWhenIdle) void idle().then(() => saveTree(doc))
   else await saveTree(doc)
 }

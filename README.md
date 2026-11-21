@@ -17,7 +17,8 @@ family tree, we have a family forest.
 <img alt="The sample family, the Kapoor family, in Jangal. Ranbir Kapoor is marked as you. The How are we related sheet shows that Kareena Kapoor Khan is his first cousin, with the hop chain Ranbir, father Rishi, brother Randhir, daughter Kareena, and that path is lit up on the tree while everyone else dims" src="docs/screenshot-light.png">
 
 The app is the site's front page, at `/`. Its start screen says what Jangal is, and it's built to
-be found in search and to preview well when shared. Old links to `/app/` still open it. Next to it
+be found in search and to preview well when shared. Once there's a tree, `/` opens it, and "See
+the start page" in About shows the start screen again. Old links to `/app/` still open it. Next to it
 are two small static pages, `/privacy/` and a 404 page. There was a separate landing page, and it
 was removed so people can focus on the app and see the family tree as soon as they open the site.
 The thinking behind it, the library choices, and the bugs that came up along the way are in

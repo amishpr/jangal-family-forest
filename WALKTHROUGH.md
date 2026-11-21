@@ -57,7 +57,9 @@ siblings who don't share a parent.
 shares the link. Those jobs want plain HTML, and the app wants JavaScript. There used to be a
 separate landing page for that, with the app at `/app/`. It was removed so people can focus on
 the app itself and see the family tree as soon as they open the site. Now the app is the front
-page, at `/`, and its start screen says what Jangal is. The build puts the same words in the page's
+page, at `/`, and its start screen says what Jangal is. Once there's a tree, `/` opens straight to
+it, and "See the start page" in About shows the start screen again: "Back to your tree" first, then
+the usual ways in. Starting a new tree from there keeps the open one saved. The build puts the same words in the page's
 `<noscript>`, with a title, a description, and JSON-LD, so search engines and link previews can
 read it without running the app. Old links to `/app/` reach a tiny page that sends them on to `/`
 with the same query. The privacy and 404 pages are still plain static HTML. The trees themselves

@@ -34,6 +34,8 @@ type UiState = {
   trait: string | null
   /** Who the Ask sheet makes a fill-in link for (SHARE.md SH-2) */
   askFor: string | null
+  /** The start page, opened from About while there's a tree, in place of the tree */
+  startPage: boolean
   toast: Toast | null
   save: 'idle' | 'saving' | 'saved' | 'error'
 
@@ -48,6 +50,7 @@ type UiState = {
   setNaming(id: string | null, from?: { id: string; type: RelativeType }): void
   setEditingTitle(on: boolean): void
   setTrait(trait: string | null): void
+  setStartPage(on: boolean): void
   showToast(message: string, action?: Toast['action']): void
   hideToast(): void
   setSave(s: UiState['save']): void
@@ -68,6 +71,7 @@ export const useUi = create<UiState>()((set, get) => ({
   editingTitle: false,
   trait: null,
   askFor: null,
+  startPage: false,
   toast: null,
   save: 'idle',
 
@@ -90,6 +94,7 @@ export const useUi = create<UiState>()((set, get) => ({
   setNaming: (naming, from) => set({ naming, namingFrom: from ?? null }),
   setEditingTitle: (editingTitle) => set({ editingTitle, card: editingTitle ? null : get().card }),
   setTrait: (trait) => set({ trait }),
+  setStartPage: (startPage) => set({ startPage, sheet: null, card: null }),
   showToast: (message, action) => set({ toast: { id: ++toastSeq, message, action } }),
   hideToast: () => set({ toast: null }),
   setSave: (save) => set({ save }),

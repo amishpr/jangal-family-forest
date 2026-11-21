@@ -29,6 +29,8 @@ export function App() {
   const colors = useSettings((s) => s.branchColors)
   const readOnly = useUi((s) => s.readOnly)
   const saveFailed = useUi((s) => s.save === 'error')
+  // With a tree, the start page shows only when it's opened from About
+  const startPage = useUi((s) => s.startPage)
   useShortcuts()
 
   // The tree is the heavy part of the first render. The chrome (the title, tabs and dock) paints
@@ -57,7 +59,7 @@ export function App() {
           {error}
         </div>
       )}
-      {status === 'empty' && <EmptyStart />}
+      {(status === 'empty' || (status === 'ready' && startPage)) && <EmptyStart />}
       {saveFailed && (
         // PLAN 6.10: never lose work to a storage problem
         <div className="banner" role="alert">
@@ -71,7 +73,7 @@ export function App() {
           </button>
         </div>
       )}
-      {status === 'ready' && (
+      {status === 'ready' && !startPage && (
         <>
           <PrintHead />
           {tab === 'tree' && treeShown && <TreeCanvas />}
