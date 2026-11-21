@@ -64,6 +64,28 @@ test('on screen, bars sit on the year scale, and dragging the marker picks the y
   await expect(page.locator('.tl-read b')).toHaveText('1950')
 })
 
+test('no year on the scale peeks out from behind the marker, at Today or after a drag', async ({ page }) => {
+  await openSample(page)
+  await openTab(page, 'Timeline')
+  await page.locator('.tl-knob').waitFor()
+  /** The years on the scale that show, and how many of them the marker covers part of */
+  const scale = () =>
+    page.evaluate(() => {
+      const k = document.querySelector('.tl-knob')!.getBoundingClientRect()
+      const shown = [...document.querySelectorAll('.tick')].map((el) => el.getBoundingClientRect()).filter((r) => r.width > 0)
+      return { shown: shown.length, under: shown.filter((r) => r.right > k.left && r.left < k.right).length }
+    })
+  expect(await scale()).toMatchObject({ under: 0 })
+  const axis = (await page.locator('.tl-axis').boundingBox())!
+  const t1950 = (await page.locator('.tick:text-is("1950")').boundingBox())!
+  // A little past 1950, between two years
+  await page.mouse.click(t1950.x + t1950.width / 2 + 20, axis.y + axis.height / 2)
+  const after = await scale()
+  expect(after.under).toBe(0)
+  // Only the years next to the marker hide
+  expect(after.shown).toBeGreaterThan(10)
+})
+
 test('paper always gets the light colors, even in the dark theme (PT-9)', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('jangal:theme', 'dark'))
   await openSample(page)

@@ -100,7 +100,8 @@ export default function TimelineTab() {
   const x = (y: number) => `calc(var(--tl-name) + ${share(y - Y0)})`
   const setYear = (y: number | null) => setYearState(y == null ? null : Math.max(Y0, Math.min(NOW, Math.round(y))))
   const Y = year ?? NOW
-  const markerAt = x(Y + (year == null ? now.getMonth() / 12 : 0.5))
+  const marker = Y + (year == null ? now.getMonth() / 12 : 0.5)
+  const markerAt = x(marker)
   const homeGen = home ? gen.get(home) : undefined
   const lit = hover ? immediateFamily(ix, hover).persons : null
 
@@ -274,7 +275,8 @@ export default function TimelineTab() {
             <div className="tl-axis">
               {ticks.map((y) => (
                 // Paper labels only every 20 years, since the decades sit close together there
-                <span key={y} className={`tick ${y % 20 ? 'minor' : ''}`} style={{ left: x(y) }}>
+                // --off is how far the year sits from the marker, so a year under it can hide (timeline.css)
+                <span key={y} className={`tick ${y % 20 ? 'minor' : ''}`} style={{ left: x(y), ['--off' as string]: `calc(${share(y - marker)})` }}>
                   {y}
                 </span>
               ))}
