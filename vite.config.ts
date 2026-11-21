@@ -17,7 +17,7 @@ function siteUrl(): string {
   const url = process.env.SITE_URL || process.env.URL || vercel
   if (url) return url.replace(/\/+$/, '')
   if (process.env.NETLIFY || process.env.VERCEL || process.env.CI) {
-    throw new Error('Set SITE_URL to the site\'s address (like https://jangal.family) in the host\'s environment settings.')
+    throw new Error('Set SITE_URL to the site\'s address (like https://www.jangaltree.com) in the host\'s environment settings.')
   }
   return 'http://localhost:5199'
 }

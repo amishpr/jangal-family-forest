@@ -12,7 +12,7 @@ over someone and their immediate family lights up, search for anyone and the app
 lights the path from you, and ask "How are we related?" about any two people and get the answer in
 plain words, with every hop in between: Maya, her mother Priya, Priya's brother Arjun, his daughter
 Anika. Anika is Maya's first cousin. It's live at
-[jangal-family-forest.vercel.app](https://jangal-family-forest.vercel.app/).
+[www.jangaltree.com](https://www.jangaltree.com/).
 
 <img alt="The sample family, the Kapoor family. Ranbir Kapoor is marked as you, and the How are we related sheet shows that Kareena Kapoor Khan is his first cousin, with the path between them lit on the tree" src="docs/screenshot-light.png">
 

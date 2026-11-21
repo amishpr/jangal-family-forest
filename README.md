@@ -1,5 +1,7 @@
 # Jangal (જંગલ) - The Family Forest
 
+[![Checks](https://github.com/amishpr/jangal-family-forest/actions/workflows/checks.yml/badge.svg?branch=main)](https://github.com/amishpr/jangal-family-forest/actions/workflows/checks.yml?query=branch%3Amain)
+
 A family tree app that runs entirely in your browser. Add people with a photo, names, dates, and
 notes, connect them as parents, partners, children, and siblings, and explore the tree. Hover over
 someone to light up their immediate family. Search for anyone to fly to them, see the path from
@@ -7,7 +9,7 @@ you to them, and get the answer in plain words: "Kareena is your first cousin." 
 and no server. The tree is saved in the browser, and nothing leaves the device unless you export
 it.
 
-Try it at [jangal-family-forest.vercel.app](https://jangal-family-forest.vercel.app/).
+Try it at [www.jangaltree.com](https://www.jangaltree.com/).
 
 Jangal is Gujarati and Hindi for forest. It's the old joke about Indian families: we don't have a
 family tree, we have a family forest.
@@ -278,15 +280,15 @@ npx playwright@1.48 install chromium
 ## Deploying
 
 The same `npm run build` works on all three hosts, and nothing in `src/` knows where it's hosted.
-Set `SITE_URL` to the site's address (for example `https://jangal.family`) in the host's
+Set `SITE_URL` to the site's address (for example `https://www.jangaltree.com`) in the host's
 environment settings. Canonical links, the sitemap, and the preview tags use it. Without it, the
 build falls back to Netlify's `URL` or Vercel's `VERCEL_PROJECT_PRODUCTION_URL`, and a build on a
 host with no address at all fails rather than point those tags at localhost. The GitHub button
 links to the repository in `src/brand.ts`; set `VITE_REPO_URL` to point it somewhere else.
 
-- **Vercel** (the main host, at
-  [jangal-family-forest.vercel.app](https://jangal-family-forest.vercel.app/)): connect the
-  repository. `vercel.json` sets the framework, trailing slashes, and the headers.
+- **Vercel** (the main host, at [www.jangaltree.com](https://www.jangaltree.com/)): connect the
+  repository, and set `SITE_URL` to `https://www.jangaltree.com`, so canonical links and the
+  sitemap use the www address. `vercel.json` sets the framework, trailing slashes, and the headers.
 - **Netlify:** connect the repository. `netlify.toml` sets the build, the same headers, and the
   Lighthouse plugin. Deploy previews are built for pull requests, and they're never indexed: their
   robots.txt blocks crawlers and every response says `noindex`.
