@@ -32,7 +32,7 @@ export default function AboutSheet() {
         <AboutText />
       </p>
       {!readOnly && (
-        <div className="row">
+        <div className="row about-start">
           <button type="button" className="chunky" onClick={() => useUi.getState().setStartPage(true)}>
             See the start page
             <ArrowRight />
