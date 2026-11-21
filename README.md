@@ -19,8 +19,8 @@ family tree, we have a family forest.
 The app is the site's front page, at `/`. Its start screen says what Jangal is, and it's built to
 be found in search and to preview well when shared. Old links to `/app/` still open it. Next to it
 are two small static pages, `/privacy/` and a 404 page. There was a separate landing page, and it
-was removed on purpose. The thinking
-behind it, the library choices, and the bugs that came up along the way are in
+was removed so people can focus on the app and see the family tree as soon as they open the site.
+The thinking behind it, the library choices, and the bugs that came up along the way are in
 [WALKTHROUGH.md](WALKTHROUGH.md).
 
 ## Features
@@ -73,9 +73,11 @@ behind it, the library choices, and the bugs that came up along the way are in
   - *Poster PDF:* the whole tree from Letter up to 24 by 36 inches, with optional profile pages.
     The text is real text, so it can be searched and copied.
   - *Picture:* PNG or SVG.
-  - *Print:* the Timeline and the Fan chart each have a Print button. They print on clean
-    paper, in the light colors, and "Save as PDF" in the print window makes a PDF. The timeline
-    runs over as many pages as it needs.
+  - *Print:* the Timeline and the Fan chart each have a Print button, and Share points to it from
+    those tabs. They print on clean paper in the light colors, whatever the theme, and "Save as
+    PDF" in the print window makes a PDF. The fan chart fits on one page, with empty places left
+    as outlines to write a name in. The timeline runs over as many pages as it needs, with each
+    person's years under their name.
   - *Backup file:* everything, photos included, as a `.jangal.json` file that loads back in.
   - *Spreadsheet:* one row per person, with parents and partners, as an Excel file (with
     dropdowns and an instructions tab) or as CSV. It imports back in.
@@ -84,7 +86,8 @@ behind it, the library choices, and the bugs that came up along the way are in
   family. You see what's in the file before anything changes, row by row for a spreadsheet.
 - **Ask the family.** From someone's card, make a link and send it by WhatsApp, text or email. It
   opens a small page where they check their details, add photos, and add their partner and
-  children, on any phone. Nothing is uploaded: their answers come back as a small file, and Import
+  children, on any phone. What they type is kept on their device until they send it, photos
+  included. Nothing is uploaded: their answers come back as a small file, and Import
   shows every change before it's made, matched to the right people by the link, not by name. One
   Undo takes it all back.
 - **Combine two trees.** Add a file a cousin sent, or another tree in this browser, to the open
@@ -104,6 +107,7 @@ behind it, the library choices, and the bugs that came up along the way are in
 ## Screenshots
 
 All of these show the sample family in the light theme, and `npm run screens` makes them again.
+The fill-in page is shown at phone size.
 
 <table>
 <tr>
@@ -144,6 +148,26 @@ All of these show the sample family in the light theme, and `npm run screens` ma
 <td>
 <img alt="The Share sheet: a page for family, a poster PDF, a backup file, or a spreadsheet, with switches for photos, traits, and hiding details of people who are living" src="docs/share-light.png">
 <b>Share</b> a page for family, a poster, a backup, or a spreadsheet.
+</td>
+</tr>
+<tr>
+<td>
+<img alt="The Ask Kareena to fill in sheet over the tree. It says the link holds only Kareena's name, Saif Ali's name, and the tree's title, with Ranbir's name, the message with the link, and buttons to copy it or email it" src="docs/ask-light.png">
+<b>Ask the family</b>: a link for someone to fill in their own details.
+</td>
+<td>
+<img alt="Kareena's reply in the review before combining. Kareena and Saif are ticked as already in the tree, her new birthplace is ticked as a change, and her son Taimur is listed as new" src="docs/reply-light.png">
+<b>Their reply</b>, with each change to tick before it joins the tree.
+</td>
+</tr>
+<tr>
+<td>
+<img alt="The fill-in page on a phone: Hi Kareena!, a note that nothing is uploaded, her photo, her name fields, and a Send to Ranbir button" src="docs/fill-in-light.png">
+<b>The fill-in page</b> on a phone. Nothing is uploaded.
+</td>
+<td>
+<img alt="The Fan chart as it prints on Letter paper: the family's title, Centered on Ranbir Kapoor, 4 generations, the chart with empty places as dotted outlines, and Made with Jangal" src="docs/print-fan-light.png">
+<b>Print</b> the Fan chart or the Timeline, or save it as a PDF.
 </td>
 </tr>
 </table>
@@ -271,7 +295,8 @@ npx playwright@1.48 install chromium
 - `npm run lhci` runs Lighthouse CI against the last build
 - `npm run wordmark`, `npm run og`, `npm run screens`, and `npm run icons` regenerate the
   wordmark, the preview image, the screenshots in `docs/`, and the app icons (run
-  `npm run build` before `npm run screens`)
+  `npm run build` before `npm run screens`, and `npm run screens -- fan ask` makes only the
+  screenshots whose names start with those words)
 - `npm run icon-paths` writes the drawings of the interface icons listed in `src/ui/icons.ts`
   (bold, and fill where asked) into `src/ui/icons.gen.ts`; run it after adding an icon
 - `npm run hosts` writes the headers in `deploy/headers.json` into `netlify.toml` and
@@ -318,18 +343,23 @@ Policy only allows the site's own files. The family page export makes no network
 all: its policy is `default-src 'none'`, with its scripts allowed by hash and its fonts and photos
 inlined.
 
+A fill-in link holds names only: the person asked, their partners and children, the tree's title,
+and who's asking. No dates, places, notes, or photos. It travels after the `#`, which browsers
+never send to a server. The fill-in page can't connect anywhere (`connect-src 'none'`), and what
+the relative types stays in their browser until they send the reply file themselves.
+
 ## Performance
 
 Budgets, checked by `npm run size` (compressed with Brotli):
 
 | What | Budget | Now |
 | --- | --- | --- |
-| The app's HTML page | 10 KB | 2 KB |
-| Privacy page HTML with its CSS inlined | 25 KB | 6.6 KB |
-| App JavaScript on first load (16 files) | 200 KB | 159 KB |
-| App CSS | 25 KB | 13.9 KB |
+| The app's HTML page | 10 KB | 2.1 KB |
+| Privacy page HTML with its CSS inlined | 25 KB | 7.2 KB |
+| App JavaScript on first load (16 files) | 200 KB | 160 KB |
+| App CSS | 25 KB | 13.8 KB |
 | Fill-in page JavaScript, before a photo is picked | 90 KB | 80 KB |
-| Fonts, Latin only | 70 KB | 61.5 KB |
+| Fonts, Latin only | 70 KB | 49 KB |
 
 The privacy and 404 pages send no JavaScript at all. In the app, the sample family, the Timeline
 and Fan chart tabs, the person card,
