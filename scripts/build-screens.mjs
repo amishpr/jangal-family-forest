@@ -3,11 +3,14 @@
 // from Ranbir to his cousin Kareena lit and the answer showing; the rest show one feature each.
 // Serves the production build (run `npm run build` first), captures it with
 // Playwright 1.48, and writes docs/*.png. Run with `npm run screens`; the files are committed.
+// `npm run screens -- fan ask` makes only the shots whose file names start with those words.
 
 import { chromium } from 'playwright'
 import { preview } from 'vite'
 import sharp from 'sharp'
 import { writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 
 const root = new URL('..', import.meta.url)
 const server = await preview({ root: root.pathname, preview: { port: 5197, strictPort: true, open: false } })
@@ -17,7 +20,35 @@ const browser = await chromium.launch()
 const dock = (page, label) => page.locator('.dock button', { hasText: label }).click()
 const tile = (page, id) => page.locator(`.tile[data-id="${id}"]`)
 
-// Each shot: [light file, dark file, what to do once the sample is showing]
+/** Kareena's fill-in link, made from her card */
+async function askKareena(page) {
+  await page.keyboard.press('/')
+  await page.locator('.find-in').fill('kareena')
+  await page.locator('.res').first().waitFor()
+  await page.locator('.find-in').press('Enter')
+  await page.waitForTimeout(900)
+  await tile(page, 'kareena').click()
+  await page.locator('.pop').getByRole('button', { name: 'Make a link' }).click()
+  const msg = page.locator('.ask-sheet .ask-msg')
+  await msg.waitFor()
+  return (await msg.textContent()).match(/https?:\/\/\S+/)[0]
+}
+
+/** What Kareena types on the fill-in page: her birthplace's new name, where she lives, and her son */
+async function fillIn(page) {
+  const me = page.getByRole('region', { name: 'You', exact: true })
+  await me.getByLabel('Born in').fill('Mumbai, India')
+  await me.getByLabel('Lives in').fill('Mumbai')
+  const saif = page.getByRole('region', { name: /You and Saif/ })
+  await saif.getByRole('button', { name: 'Add a child' }).click()
+  const kid = saif.locator('.add-kid').last()
+  await kid.getByLabel('First name').fill('Taimur')
+  await kid.getByLabel('Last name').fill('Ali Khan')
+  await kid.getByLabel('Birthday: year').fill('2016')
+}
+
+// Each shot: [light file, dark file (none for paper, which always prints light), what to do once
+// the sample is showing, and any page options that differ]
 const shots = [
   ['screenshot-light.png', 'screenshot.png', async (page) => {
     await dock(page, 'Relate')
@@ -60,11 +91,61 @@ const shots = [
   ['share-light.png', 'share-dark.png', async (page) => {
     await dock(page, 'Share')
   }],
+  ['ask-light.png', 'ask-dark.png', async (page) => {
+    await askKareena(page)
+    // The link as it reads on the real site, not this preview's localhost
+    await page.locator('.ask-msg').evaluate((el, b) => (el.textContent = el.textContent.replace(b, 'https://www.jangaltree.com')), base)
+    await page.mouse.move(5, 500)
+  }],
+  // The fill-in page on a phone, with Kareena's photo picked
+  ['fill-in-light.png', 'fill-in-dark.png', async (page) => {
+    const link = await askKareena(page)
+    await page.setViewportSize({ width: 390, height: 640 })
+    await page.goto(link)
+    const me = page.getByRole('region', { name: 'You', exact: true })
+    await me.getByLabel('Born in').fill('Mumbai, India')
+    await me.getByLabel('Add your photo').setInputFiles(new URL('public/sample/kareena.webp', root).pathname)
+    await page.getByRole('dialog', { name: 'Your photo' }).getByRole('button', { name: 'Use this photo' }).click()
+    await me.locator('.add-face img').waitFor()
+    await page.evaluate(() => scrollTo(0, 0))
+  }, { deviceScaleFactor: 2 }],
+  // Kareena's reply back in the app, in the review before it's combined
+  ['reply-light.png', 'reply-dark.png', async (page) => {
+    const link = await askKareena(page)
+    const relative = await browser.newPage()
+    // No share sheet, so Send downloads the reply
+    await relative.addInitScript(() => {
+      delete Navigator.prototype.share
+      delete Navigator.prototype.canShare
+    })
+    await relative.goto(link)
+    await fillIn(relative)
+    const [download] = await Promise.all([relative.waitForEvent('download'), relative.getByRole('button', { name: 'Send to Ranbir' }).click()])
+    const file = join(tmpdir(), download.suggestedFilename())
+    await download.saveAs(file)
+    await relative.close()
+    await page.keyboard.press('Escape')
+    await dock(page, 'Share')
+    await page.getByRole('button', { name: 'Import a file' }).click()
+    await page.locator('.sheet input[type=file]').setInputFiles(file)
+    await page.locator('.report.merge').waitFor()
+    await page.mouse.move(5, 500)
+  }],
+  // The Fan chart as it prints, on a page the size of Letter paper
+  ['print-fan-light.png', null, async (page) => {
+    await page.keyboard.press('3')
+    await page.locator('.fan-svg').waitFor()
+    await page.emulateMedia({ media: 'print' })
+    // The print window's margins, and an edge so the page shows on white
+    await page.addStyleTag({ content: 'body { padding: 0.4in } html { outline: 1px solid #d0d7de; outline-offset: -1px }' })
+  }, { viewport: { width: 816, height: 1056 } }],
 ]
 
-for (const [light, dark, setup] of shots) {
+const only = process.argv.slice(2)
+for (const [light, dark, setup, options] of shots.filter(([light]) => !only.length || only.some((w) => light.startsWith(w)))) {
   for (const [scheme, file] of [['light', light], ['dark', dark]]) {
-    const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, colorScheme: scheme, reducedMotion: 'reduce' })
+    if (!file) continue
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, colorScheme: scheme, reducedMotion: 'reduce', ...options })
     // The site is light unless dark was picked
     await page.addInitScript((t) => localStorage.setItem('jangal:theme', t), scheme)
     await page.goto(`${base}/?sample`)
