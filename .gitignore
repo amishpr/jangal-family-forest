@@ -31,3 +31,6 @@ CLEAN-UP/generated
 # Built by `npm run build:viewer` (the family page template) before every build
 dist-viewer
 public/viewer-template.html
+
+# Planning and todo docs, and design mockups: kept on this machine, not in the repository
+TODO/

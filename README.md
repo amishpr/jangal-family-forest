@@ -180,7 +180,6 @@ netlify.toml, vercel.json        Host settings (headers are written into them by
 .lighthouserc.cjs                Lighthouse CI budgets
 .size-limit.mjs                  Size budgets
 og/template.html                 The link preview image, rendered by `npm run og`
-mockups/                         Design mockups: the final design (07) and the F8–F19 feature mockups
 CLEAN-UP/                        Files no longer used, kept for review before deleting (see its README)
 docs/                            README and WALKTHROUGH screenshots (not shipped with the site)
 scripts/
