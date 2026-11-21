@@ -112,18 +112,13 @@
   .flbl.ink {
     fill: var(--ink);
   }
-  .fmem {
-    pointer-events: none;
-    transition: opacity 0.2s;
-  }
   .ghost-plus {
     fill: var(--ink-3);
     font: 800 18px var(--font-display);
     pointer-events: none;
   }
   .fan-svg.hovering .fw:not(.on),
-  .fan-svg.hovering .flbl:not(.on),
-  .fan-svg.hovering .fmem:not(.on) {
+  .fan-svg.hovering .flbl:not(.on) {
     opacity: 0.25;
   }
   .fan-center {
