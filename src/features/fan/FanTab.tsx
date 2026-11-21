@@ -11,7 +11,7 @@ import type { Sides } from '../../core/sides'
 import { useTree } from '../../store/treeStore'
 import { useUi } from '../../store/uiStore'
 import { usePhotoUrl } from '../../store/photos'
-import { ArrowDown, CaretRight, Crosshair } from '../../ui/icons'
+import { ArrowDown, CaretRight, Crosshair, Printer } from '../../ui/icons'
 import { reduceMotion } from '../canvas/camera'
 import { toast } from '../../app/actions'
 
@@ -140,24 +140,7 @@ const Wedge = memo(function Wedge({ k, a1, a2, p, pct, slot, kind, sides }: Wedg
       </g>
     )
   }
-  let mem: ReactNode = null
-  if (isDeceased(p)) {
-    const [mx, my] = pt(rOut(k) - 13, am)
-    const sz = k <= 2 ? 17 : 13
-    mem = (
-      <svg
-        className={`fmem ${side}`}
-        x={f1(mx - sz / 2)}
-        y={f1(my - sz / 2)}
-        width={sz}
-        height={sz}
-        viewBox="0 0 24 24"
-        style={{ color: onSide ? 'var(--on-side)' : 'var(--side-ink)' }}
-      >
-        <SeedPaths />
-      </svg>
-    )
-  }
+  // No remembrance seed on the wedges: it covered names. The tip says "in memory" instead.
   return (
     <g>
       <path
@@ -171,21 +154,9 @@ const Wedge = memo(function Wedge({ k, a1, a2, p, pct, slot, kind, sides }: Wedg
         aria-label={`${fullName(p)}. Center the chart on them`}
       />
       {label}
-      {mem}
     </g>
   )
 })
-
-function SeedPaths() {
-  return (
-    <>
-      <path className="seed-fill" d="M12 9.6c3 1.9 5.3 4.2 5.3 7.1 0 2.8-2.3 4.8-5.3 4.8s-5.3-2-5.3-4.8c0-2.9 2.3-5.2 5.3-7.1z" />
-      <path fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" d="M12 10.4V6.2" />
-      <path fill="currentColor" d="M11.6 7.1C10.9 4.4 8.6 2.8 5.4 3.1 5.3 6.2 7.7 8 11.6 7.1z" />
-      <path fill="currentColor" d="M12.4 6.3C13.2 3.8 15.4 2.4 18.6 2.7 18.6 5.6 16.2 7.2 12.4 6.3z" />
-    </>
-  )
-}
 
 function Center({ p, side }: { p: Person; side: string }) {
   const url = usePhotoUrl(p.photoId, 'full')
@@ -215,11 +186,6 @@ function Center({ p, side }: { p: Person; side: string }) {
       <text className="fan-name" x={CX} y={CY + 64} textAnchor="middle">
         {short(p.firstName || fullName(p), 11)}
       </text>
-      {isDeceased(p) && (
-        <svg x={CX + 28} y={CY + 12} width={30} height={30} viewBox="0 0 24 24" style={{ color: 'var(--side-ink)' }}>
-          <SeedPaths />
-        </svg>
-      )}
     </g>
   )
 }
@@ -377,7 +343,7 @@ export default function FanTab() {
     for (const key of lit) {
       g.querySelectorAll(`[data-slot="${key}"], [data-dslot="${CSS.escape(key)}"]`).forEach((el) => {
         el.classList.add('on')
-        el.parentElement?.querySelectorAll('.flbl, .fmem').forEach((t) => t.classList.add('on'))
+        el.parentElement?.querySelectorAll('.flbl').forEach((t) => t.classList.add('on'))
       })
     }
   }, [lit, wedges])
@@ -483,8 +449,19 @@ export default function FanTab() {
                 Descendants
               </button>
             </div>
+            {/* The browser's print window, where Save as PDF makes the PDF (PRINT.md PT-1) */}
+            <div className="seg">
+              <button type="button" onClick={() => window.print()}>
+                <Printer />
+                Print
+              </button>
+            </div>
           </div>
         </div>
+        {/* On paper only, in place of the bar above (PT-4) */}
+        <p className="fan-cap">
+          Centered on {fullName(cp)} · {gens} generations
+        </p>
         <div className="fan-stage">
           <svg
             className={`fan-svg ${lit ? 'hovering' : ''}`}

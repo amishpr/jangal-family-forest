@@ -17,7 +17,7 @@ function siteUrl(): string {
   const url = process.env.SITE_URL || process.env.URL || vercel
   if (url) return url.replace(/\/+$/, '')
   if (process.env.NETLIFY || process.env.VERCEL || process.env.CI) {
-    throw new Error('Set SITE_URL to the site\'s address (like https://jangal.family) in the host\'s environment settings.')
+    throw new Error('Set SITE_URL to the site\'s address (like https://www.jangaltree.com) in the host\'s environment settings.')
   }
   return 'http://localhost:5199'
 }
@@ -47,6 +47,8 @@ export default defineConfig({
           '**/exportPdf-*', '**/html2canvas-*', '**/purify.es-*', '**/index.es-*', '**/PhotoCropper-*',
           '**/*vietnamese*', '**/*latin-ext*', '**/noto-sans-gujarati-*', '**/*.ttf',
           'viewer-template.html', 'og/**', 'app/index.html', 'privacy/**', '404.html',
+          // The fill-in page is for relatives, not the app
+          'add/**', '**/add-*',
         ],
         navigateFallback: null,
         cleanupOutdatedCaches: true,
@@ -69,6 +71,8 @@ export default defineConfig({
       input: {
         app: page('./index.html'),
         oldAppAddress: page('./app/index.html'),
+        // The fill-in page a relative opens from a link (SHARE.md SH-4)
+        add: page('./add/index.html'),
         privacy: page('./privacy/index.html'),
         notFound: page('./404.html'),
       },
@@ -76,7 +80,11 @@ export default defineConfig({
         // React in its own file, so a deploy that only changes the app leaves it cached
         // (/assets is served as immutable).
         codeSplitting: {
-          groups: [{ name: 'react', test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/, priority: 2 }],
+          groups: [
+            { name: 'react', test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/, priority: 2 },
+            // The app's stylesheet and fonts, which the fill-in page (SHARE.md) shares
+            { name: 'styles', test: /src[\\/]styles[\\/](app|gujarati)\.css|@fontsource-variable[\\/]/, priority: 1 },
+          ],
         },
       },
     },

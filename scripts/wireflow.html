@@ -1,0 +1,266 @@
+<!doctype html>
+<!-- The wireflow pictures in WALKTHROUGH.md. `npm run screens -- wireflow` captures each step's
+     screen from the real app, puts them and the flow's steps in window.FLOW below, renders this page
+     with Playwright, and writes docs/wireflow-*.png. The arrows are drawn after the layout, from
+     where the steps actually landed. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @font-face {
+        font-family: 'Source Sans 3';
+        src: url('../node_modules/@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2') format('woff2');
+        font-weight: 200 800;
+      }
+      @font-face {
+        font-family: 'Figtree';
+        src: url('../node_modules/@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2') format('woff2');
+        font-weight: 300 900;
+      }
+      :root {
+        --bg: #eff7f1;
+        --tile: #fdfffd;
+        --ink: #0b3320;
+        --ink-2: #3e6550;
+        --ink-3: #50725e;
+        --leaf: #17844a;
+        --mint: #d2f1dd;
+        --mint-2: #e4f6ea;
+        --line: #bfddc9;
+        --ledge: #cbe6d4;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font: 500 16px/1.4 'Figtree', sans-serif;
+      }
+      main {
+        position: relative;
+        width: max-content;
+        padding: 44px 48px 52px;
+      }
+      header h1 {
+        margin: 0;
+        font: 800 34px/1.1 'Source Sans 3', sans-serif;
+        letter-spacing: -0.01em;
+      }
+      header p {
+        margin: 6px 0 0;
+        font-size: 18px;
+        color: var(--ink-2);
+      }
+      .grid {
+        position: relative;
+        display: grid;
+        margin-top: 48px;
+      }
+      .band {
+        position: absolute;
+        border-radius: 28px;
+        background: var(--mint-2);
+        border: 2px solid var(--ledge);
+      }
+      .band b {
+        position: absolute;
+        top: 12px;
+        left: 20px;
+        font: 800 15px 'Source Sans 3', sans-serif;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--leaf);
+      }
+      .step,
+      .note {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+      }
+      .shot {
+        display: grid;
+        place-items: center;
+        height: var(--shot-h);
+        padding: 10px;
+        border-radius: 22px;
+        background: var(--tile);
+        border: 2px solid var(--line);
+        box-shadow: 0 4px 0 var(--ledge);
+        overflow: hidden;
+      }
+      .shot img {
+        display: block;
+        max-width: 100%;
+        max-height: calc(var(--shot-h) - 20px);
+        border-radius: 12px;
+      }
+      /* A tall screen, like a phone or a card: its top (or bottom), the width of the frame */
+      .shot.top img {
+        width: 100%;
+        height: calc(var(--shot-h) - 20px);
+        max-height: none;
+        object-fit: cover;
+        object-position: top;
+      }
+      .shot.bottom img {
+        object-position: bottom;
+      }
+      figcaption {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        column-gap: 10px;
+        margin-top: 12px;
+      }
+      .n {
+        grid-row: span 2;
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 99px;
+        background: var(--leaf);
+        color: #f4fff8;
+        font: 800 16px 'Source Sans 3', sans-serif;
+      }
+      figcaption b {
+        font: 800 19px/1.2 'Source Sans 3', sans-serif;
+      }
+      figcaption span:last-child {
+        font-size: 15px;
+        color: var(--ink-2);
+      }
+      .note {
+        align-self: center;
+        padding: 18px 20px;
+        border-radius: 20px;
+        border: 2px dashed var(--leaf);
+        background: var(--tile);
+        font-size: 15px;
+        color: var(--ink-2);
+      }
+      .note b {
+        display: block;
+        margin-bottom: 4px;
+        font: 800 18px 'Source Sans 3', sans-serif;
+        color: var(--ink);
+      }
+      svg.arrows {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        overflow: visible;
+        pointer-events: none;
+      }
+      .lbl {
+        position: absolute;
+        z-index: 3;
+        max-width: 250px;
+        font: 700 14px/1.3 'Figtree', sans-serif;
+        color: var(--ink);
+      }
+      .lbl code {
+        display: block;
+        margin-top: 3px;
+        font: 600 12.5px ui-monospace, Menlo, monospace;
+        color: var(--leaf);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1 id="title"></h1>
+        <p id="sub"></p>
+      </header>
+      <div class="grid" id="grid"></div>
+    </main>
+    <script>
+      /*FLOW*/
+    </script>
+    <script>
+      // FLOW: { title, sub, cols, colWidth, gap: [row, col], shotHeight, lanes: [{ row, label }],
+      // steps: [{ row, col, title, text, img, crop: 'top' or 'bottom' for a tall screen }], notes: [{ row, col, title, text }],
+      // arrows: [{ from, to, label, code }] }, with from and to as step numbers counted from 1
+      const F = window.FLOW
+      const grid = document.getElementById('grid')
+      document.getElementById('title').textContent = F.title
+      document.getElementById('sub').textContent = F.sub
+      grid.style.gridTemplateColumns = `repeat(${F.cols}, ${F.colWidth}px)`
+      grid.style.rowGap = `${F.gap[0]}px`
+      grid.style.columnGap = `${F.gap[1]}px`
+      grid.style.setProperty('--shot-h', `${F.shotHeight}px`)
+      const el = (tag, cls, html) => Object.assign(document.createElement(tag), { className: cls, innerHTML: html ?? '' })
+      const steps = F.steps.map((s, i) => {
+        const f = el('figure', 'step', `<div class="shot${s.crop ? ` top ${s.crop}` : ''}"><img src="${s.img}" alt=""></div><figcaption><span class="n">${i + 1}</span><b></b><span></span></figcaption>`)
+        f.querySelector('b').textContent = s.title
+        f.querySelector('figcaption span:last-child').textContent = s.text
+        f.style.gridArea = `${s.row} / ${s.col}`
+        return grid.appendChild(f)
+      })
+      for (const n of F.notes ?? []) {
+        const d = el('div', 'note', '<b></b><span></span>')
+        d.querySelector('b').textContent = n.title
+        d.querySelector('span').textContent = n.text
+        d.style.gridArea = `${n.row} / ${n.col}`
+        grid.appendChild(d)
+      }
+
+      Promise.all([document.fonts.ready, ...[...document.images].map((i) => i.decode())]).then(() => {
+        const g = grid.getBoundingClientRect()
+        const box = (e) => {
+          const r = e.getBoundingClientRect()
+          return { l: r.left - g.left, r: r.right - g.left, t: r.top - g.top, b: r.bottom - g.top }
+        }
+        // The lanes: a band behind each row of steps, with room above for its name
+        for (const lane of F.lanes ?? []) {
+          const rows = steps.filter((_, i) => F.steps[i].row === lane.row).map((s) => box(s))
+          const band = el('div', 'band', '<b></b>')
+          band.querySelector('b').textContent = lane.label
+          Object.assign(band.style, {
+            left: '-24px',
+            right: '-24px',
+            top: `${Math.min(...rows.map((r) => r.t)) - 48}px`,
+            height: `${Math.max(...rows.map((r) => r.b)) - Math.min(...rows.map((r) => r.t)) + 72}px`,
+          })
+          grid.prepend(band)
+        }
+        // The arrows: across the gap between two steps, at the middle of the shots they share
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+        svg.classList.add('arrows')
+        svg.innerHTML =
+          '<defs><marker id="head" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#17844a"/></marker></defs>'
+        for (const a of F.arrows) {
+          const [A, B] = [steps[a.from - 1], steps[a.to - 1]].map((s) => box(s.querySelector('.shot')))
+          const across = A.b > B.t && B.b > A.t
+          let x1, y1, x2, y2
+          if (across) {
+            y1 = y2 = (Math.max(A.t, B.t) + Math.min(A.b, B.b)) / 2
+            ;[x1, x2] = B.l > A.r ? [A.r + 8, B.l - 10] : [A.l - 8, B.r + 10]
+          } else {
+            const top = (s) => box(s).t
+            const [sa, sb] = [steps[a.from - 1], steps[a.to - 1]]
+            x1 = x2 = (Math.max(A.l, B.l) + Math.min(A.r, B.r)) / 2
+            ;[y1, y2] = top(sb) > top(sa) ? [box(sa).b + 8, B.t - 10] : [A.t - 8, box(sb).b + 10]
+          }
+          const p = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+          p.setAttribute('d', `M${x1} ${y1}L${x2} ${y2}`)
+          Object.entries({ stroke: '#17844a', 'stroke-width': 4, 'stroke-linecap': 'round', fill: 'none', 'marker-end': 'url(#head)' }).forEach(([k, v]) => p.setAttribute(k, v))
+          svg.appendChild(p)
+          if (a.label) {
+            const l = el('div', 'lbl')
+            l.textContent = a.label
+            if (a.code) l.appendChild(Object.assign(document.createElement('code'), { textContent: a.code }))
+            grid.appendChild(l)
+            const r = l.getBoundingClientRect()
+            l.style.left = `${across ? (x1 + x2) / 2 - r.width / 2 : x1 + 18}px`
+            l.style.top = `${across ? y1 - r.height - 10 : (y1 + y2) / 2 - r.height / 2}px`
+          }
+        }
+        grid.appendChild(svg)
+        document.body.dataset.ready = '1'
+      })
+    </script>
+  </body>
+</html>

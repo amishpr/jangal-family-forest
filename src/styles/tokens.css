@@ -1,8 +1,9 @@
 /* Color tokens (PLAN 6.2). Light is the default. Dark is "Bark": a dark bark ground, leaf green
    person tiles, olive gray panels and parchment text, with brighter greens only where something
    needs to be seen or pressed. Dark applies when the system asks for it (unless light was chosen),
-   or when dark was chosen. The tokens sit at the root, outside any layer, and @theme inline maps
-   them to Tailwind utilities (bg-tile, text-ink-2, and so on). */
+   or when dark was chosen, and only on screens: paper always gets the light colors (PRINT.md
+   PT-9). The tokens sit at the root, outside any layer, and @theme inline maps them to Tailwind
+   utilities (bg-tile, text-ink-2, and so on). */
 
 :root {
   --bg: #eff7f1;
@@ -37,7 +38,7 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
+@media screen and (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --bg: #24211c;
     --tile: #3a3f35;
@@ -70,40 +71,42 @@
   }
 }
 
-:root[data-theme='dark'] {
-  --bg: #24211c;
-  --tile: #3a3f35;
-  --card: #34533d;
-  --ink: #efe6da;
-  --ink-2: #d3c5b5;
-  --ink-3: #c6baab;
-  --leaf: #a3c585;
-  --leaf-deep: #bedba3;
-  --on-leaf: #0b1f14;
-  --mint: #4f473b;
-  --mint-2: #454a3f;
-  --line: #5f725d;
-  --field: #7c8b78;
-  --ledge: #15130f;
-  --ledge-leaf: #5e7f48;
-  --bark: #d0a57e;
-  --danger: #f5ac9d;
-  --soft: 0 14px 30px rgb(0 0 0 / 45%);
-  --tile-shadow: 0 10px 22px rgb(0 0 0 / 25%);
-  --pat: #8dbdab;
-  --pat-ink: #b8dbce;
-  --mat: #c3c27c;
-  --mat-ink: #d8d79a;
-  --own: #a3c585;
-  --own-ink: #bedba3;
-  --on-side: #0b1f14;
-  --home-chip: color-mix(in srgb, var(--on-leaf) 22%, var(--leaf));
-  color-scheme: dark;
+@media screen {
+  :root[data-theme='dark'] {
+    --bg: #24211c;
+    --tile: #3a3f35;
+    --card: #34533d;
+    --ink: #efe6da;
+    --ink-2: #d3c5b5;
+    --ink-3: #c6baab;
+    --leaf: #a3c585;
+    --leaf-deep: #bedba3;
+    --on-leaf: #0b1f14;
+    --mint: #4f473b;
+    --mint-2: #454a3f;
+    --line: #5f725d;
+    --field: #7c8b78;
+    --ledge: #15130f;
+    --ledge-leaf: #5e7f48;
+    --bark: #d0a57e;
+    --danger: #f5ac9d;
+    --soft: 0 14px 30px rgb(0 0 0 / 45%);
+    --tile-shadow: 0 10px 22px rgb(0 0 0 / 25%);
+    --pat: #8dbdab;
+    --pat-ink: #b8dbce;
+    --mat: #c3c27c;
+    --mat-ink: #d8d79a;
+    --own: #a3c585;
+    --own-ink: #bedba3;
+    --on-side: #0b1f14;
+    --home-chip: color-mix(in srgb, var(--on-leaf) 22%, var(--leaf));
+    color-scheme: dark;
+  }
 }
 
 /* The lighter leaf tiles need slightly brighter small text to stay above 4.5:1 (PLAN 6.2). So does
    the tag of someone on neither side of the family, like an in-law's parent. */
-@media (prefers-color-scheme: dark) {
+@media screen and (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .tile {
     --ink-3: #ccc1b1;
   }
@@ -111,11 +114,13 @@
     --side-ink: var(--ink);
   }
 }
-:root[data-theme='dark'] .tile {
-  --ink-3: #ccc1b1;
-}
-:root[data-theme='dark'] .s-none {
-  --side-ink: var(--ink);
+@media screen {
+  :root[data-theme='dark'] .tile {
+    --ink-3: #ccc1b1;
+  }
+  :root[data-theme='dark'] .s-none {
+    --side-ink: var(--ink);
+  }
 }
 
 /* Fonts (PLAN 6.4). Source Sans 3 and Figtree are variable and self hosted, Latin first:

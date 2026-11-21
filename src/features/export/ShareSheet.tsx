@@ -43,6 +43,12 @@ export default function ShareSheet() {
   const [dates, setDates] = useState(true)
   const [profiles, setProfiles] = useState(true)
   const colors = useSettings((s) => s.branchColors)
+  // The poster draws the tree. From the other tabs, Share points to printing the view (PRINT.md PT-10)
+  const tab = useUi((s) => s.tab)
+  const printView = () => {
+    useUi.getState().openSheet(null)
+    requestAnimationFrame(() => setTimeout(() => window.print()))
+  }
   // Backup options
   const [jsonPhotos, setJsonPhotos] = useState(true)
 
@@ -185,6 +191,14 @@ export default function ShareSheet() {
               <input type="checkbox" checked={profiles} onChange={(e) => setProfiles(e.target.checked)} />
               Profile pages after the poster
             </label>
+            {tab !== 'tree' && (
+              <p className="help" style={{ flexBasis: '100%' }}>
+                The poster draws the tree.{' '}
+                <button type="button" className="linkish" onClick={printView}>
+                  Print the {tab === 'fan' ? 'fan chart' : 'timeline'} instead
+                </button>
+              </p>
+            )}
           </>
         )}
         {kind === 'json' && (

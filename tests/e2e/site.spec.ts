@@ -34,6 +34,49 @@ test('the start screen: the name, then the ways in, then a short word about Jang
   expect(sub!.y).toBeGreaterThan(mark!.y + mark!.height - 4)
 })
 
+test('with a tree open, About shows the start page, with the way back to the tree first', async ({ page }) => {
+  await page.goto('/?sample')
+  const ranbir = page.locator('.tile[data-id="ranbir"]')
+  await expect(ranbir).toBeVisible()
+  const startPage = async () => {
+    await page.getByRole('button', { name: 'About', exact: true }).click()
+    await page.getByRole('button', { name: 'See the start page' }).click()
+  }
+
+  await startPage()
+  const back = page.getByRole('button', { name: /Back to your tree/ })
+  await expect(back).toBeFocused()
+  await expect(back).toContainText(/The Kapoor Family\s*88 people/)
+  await expect(page.getByRole('button', { name: /Start with you/ })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Start a new tree' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Explore a sample family' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'About Jangal' })).toBeVisible()
+  await expect(page.locator('.tile')).toHaveCount(0)
+  // The tree's shortcuts wait until it's back
+  await page.keyboard.press('2')
+  await expect(page.locator('.empty-start')).toBeVisible()
+  await back.click()
+  await expect(ranbir).toBeVisible()
+
+  // Esc goes back too
+  await startPage()
+  await page.keyboard.press('Escape')
+  await expect(ranbir).toBeVisible()
+
+  // Import opens over the tree
+  await startPage()
+  await page.getByRole('button', { name: 'Import a file' }).click()
+  await expect(page.locator('.sheet input[type=file]')).toBeAttached()
+  await expect(ranbir).toBeVisible()
+  await page.keyboard.press('Escape')
+
+  // A new tree starts with you, and the sample family stays saved
+  await startPage()
+  await page.getByRole('button', { name: 'Start a new tree' }).click()
+  await expect(page.locator('.empty-start')).toHaveCount(0)
+  await expect(page.locator('.nm-in')).toBeFocused()
+})
+
 test('old /app/ links open the app at /, query and all', async ({ page, request }) => {
   await page.goto('/app/?sample')
   await expect(page).toHaveURL(/\/\?sample$|\/$/)

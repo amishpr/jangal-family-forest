@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { alvarezTree } from '../../tests/fixtures/alvarez'
 import { build } from '../../tests/fixtures/build'
 import { indexOf } from './index'
-import { findMatches, mergeTrees, type MergeResult } from './merge'
+import { diffPeople, findMatches, mergeTrees, type MergeResult } from './merge'
 import type { TreeDoc } from './model'
 
 // Combining two trees (TODO.md F12)
@@ -98,5 +98,67 @@ describe('combining two trees', () => {
     const { doc, r } = merge(base, build('zed:m', []), [])
     expect(r.ok).toBe(false)
     expect(doc).toBe(base)
+  })
+})
+
+describe('reviewing a relative’s reply (SHARE.md SH-13 to SH-15)', () => {
+  // The tree has Ann and Bob, married. Ann's reply spells Bob differently, gives her birthplace and a
+  // new one for Bob, a wedding day, and their new baby.
+  const base = () => {
+    const doc = build('ann:f bob:m', [[['ann', 'bob'], [], 'married']], null, { ann: 1980, bob: 1978 })
+    doc.people.ann.birth = { date: { year: 1980 }, place: 'Bombay' }
+    doc.people.bob.photoId = 'ph_old'
+    doc.families.f1.start = { year: 2012 }
+    return doc
+  }
+  const reply = () => {
+    const doc = build('ann:f bob:m baby:f', [[['ann', 'bob'], ['baby'], 'married']], null, { ann: 1980, bob: 1978, baby: 2024 })
+    doc.people.ann.birth = { date: { year: 1980, month: 9, day: 21 }, place: 'Mumbai' }
+    doc.people.ann.livesIn = 'Mumbai'
+    doc.people.bob.firstName = 'Robert'
+    doc.people.bob.photoId = 'ph_new'
+    doc.families.f1.start = { year: 2012, month: 10, day: 16 }
+    return doc
+  }
+
+  it('matches the people the link carried by id, even when a name changed', () => {
+    const matches = findMatches(base(), reply(), ['ann', 'bob'])
+    expect(matches).toEqual([
+      { base: 'ann', other: 'ann', strong: true },
+      { base: 'bob', other: 'bob', strong: true },
+    ])
+  })
+
+  it('lists each difference, and counts the blanks it fills', () => {
+    const { changes, fills } = diffPeople(base(), reply(), [['ann', 'ann'], ['bob', 'bob']], { photos: true })
+    expect(changes.map((c) => [c.key, c.here, c.theirs])).toEqual([
+      ['ann:birth.date', '1980', 'September 21, 1980'],
+      ['ann:birth.place', 'Bombay', 'Mumbai'],
+      ['bob:firstName', 'Bob', 'Robert'],
+      ['bob:photoId', 'ph_old', 'ph_new'],
+      ['fam:f1:start', '2012', 'October 16, 2012'],
+    ])
+    expect(changes.find((c) => c.key === 'bob:photoId')?.photo).toBe(true)
+    // Ann's home
+    expect(fills).toBe(1)
+    // Another tree's photos aren't offered, and the same photo never is
+    expect(diffPeople(base(), reply(), [['bob', 'bob']]).changes.map((c) => c.key)).toEqual(['bob:firstName'])
+    const same = reply()
+    same.people.bob.photoId = 'ph_old'
+    expect(diffPeople(base(), same, [['bob', 'bob']], { photos: true }).changes.map((c) => c.key)).toEqual(['bob:firstName'])
+  })
+
+  it('takes only the picked differences, and doesn’t list the rest again', () => {
+    const take = new Set(['ann:birth.place', 'bob:photoId', 'fam:f1:start'])
+    let r: MergeResult | undefined
+    const doc = produce(base(), (d) => void (r = mergeTrees(d, reply(), [['ann', 'ann'], ['bob', 'bob']], take)))
+    if (!r?.ok) throw new Error('not combined')
+    expect(doc.people.ann.birth).toEqual({ date: { year: 1980 }, place: 'Mumbai' })
+    expect(doc.people.ann.livesIn).toBe('Mumbai')
+    expect(doc.people.bob.firstName).toBe('Bob')
+    expect(doc.people.bob.photoId).toBe('ph_new')
+    expect(doc.families.f1.start).toEqual({ year: 2012, month: 10, day: 16 })
+    expect(r.report).toMatchObject({ added: 1, joined: 2, conflicts: [] })
+    expect(indexOf(doc).childrenOf('ann')).toHaveLength(1)
   })
 })

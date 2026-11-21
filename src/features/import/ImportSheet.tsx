@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { toast } from '../../app/actions'
+import { openNewTree } from '../../app/boot'
 import { readTreeText, summarize, MAX_FILE_BYTES, type ImportPreview } from '../../core/importTree'
+import type { ReplyInfo } from '../../core/model'
+import { listTrees, loadTree } from '../../store/persist'
 import { applyFileTitles } from '../../store/settings'
 import { packFor } from '../../core/titles'
 import { useTree } from '../../store/treeStore'
@@ -12,7 +15,8 @@ import { MergeReview } from './MergeReview'
 // Import (PLAN E-2, E-8, TODO.md F3): a backup file, a family page exported from Jangal, a GEDCOM file
 // from Ancestry, FamilySearch or MyHeritage, or a spreadsheet filled in from the template. You see
 // what's in it before anything changes, and it opens as a new tree unless you choose to replace the
-// one that's open, or to add it to the open one (TODO.md F12).
+// one that's open, or to add it to the open one (TODO.md F12). A relative's reply from a fill-in
+// link (SHARE.md SH-12) goes straight to the review when it's for the open tree.
 
 type Loaded = { name: string; preview: ImportPreview; report?: string[] }
 
@@ -25,12 +29,34 @@ export default function ImportSheet() {
   const [confirmReplace, setConfirmReplace] = useState(false)
   const [combining, setCombining] = useState(false)
   const [useTitles, setUseTitles] = useState(true)
+  // A reply for a tree other than the open one: that tree, if it's in this browser
+  const [replyTree, setReplyTree] = useState<{ id: string; title: string } | 'missing' | null>(null)
+
+  /** A reply joins the tree it's for: straight to the review, or that tree opened first */
+  const placeReply = async (reply: ReplyInfo) => {
+    if (useTree.getState().doc?.id === reply.treeId) return setCombining(true)
+    const t = (await listTrees()).find((x) => x.id === reply.treeId)
+    setReplyTree(t ? { id: t.id, title: t.title || reply.treeTitle } : 'missing')
+  }
+  const openReplyTree = async (id: string) => {
+    setBusy(true)
+    try {
+      const doc = await loadTree(id)
+      if (!doc) return setError("That tree couldn't be opened.")
+      await openNewTree(doc)
+      setReplyTree(null)
+      setCombining(true)
+    } finally {
+      setBusy(false)
+    }
+  }
 
   const read = async (file: File) => {
     setError(null)
     setLoaded(null)
     setConfirmReplace(false)
     setCombining(false)
+    setReplyTree(null)
     if (file.size > MAX_FILE_BYTES) return setError('That file is over 100 MB, which is too big to be a family tree.')
     setBusy(true)
     try {
@@ -48,7 +74,10 @@ export default function ImportSheet() {
       } else {
         const res = readTreeText(text, file.name)
         if (!res.ok) setError(res.error)
-        else setLoaded({ name: file.name, preview: res })
+        else {
+          setLoaded({ name: file.name, preview: res })
+          if (res.tree.reply) await placeReply(res.tree.reply)
+        }
       }
     } catch (err) {
       console.error(err)
@@ -130,13 +159,31 @@ export default function ImportSheet() {
       {loaded && combining && (
         <MergeReview
           other={loaded.preview.tree}
+          reply={loaded.preview.tree.reply}
           importPhotos={async (t) => (await import('./commitImport')).importPhotos(t)}
           onDone={() => useUi.getState().openSheet(null)}
           onCancel={() => setCombining(false)}
         />
       )}
-      {loaded && !combining && (
+      {loaded && !combining && typeof replyTree === 'object' && replyTree && (
         <div className="report" style={{ marginTop: 12 }} role="status">
+          <b>{loaded.preview.tree.title}</b>
+          <span>This reply is for {replyTree.title}, which isn't the tree that's open. Open it to add the reply to it.</span>
+          <div className="row" style={{ marginTop: 4 }}>
+            <button type="button" className="chunky go" disabled={busy} onClick={() => void openReplyTree(replyTree.id)}>
+              Open {replyTree.title}
+            </button>
+          </div>
+        </div>
+      )}
+      {loaded && !combining && !(typeof replyTree === 'object' && replyTree) && (
+        <div className="report" style={{ marginTop: 12 }} role="status">
+          {replyTree === 'missing' && (
+            <span>
+              This reply is for {loaded.preview.tree.reply?.treeTitle || 'a tree'}, which isn't in this browser. You can open it as a tree of
+              its own, or add it to the open tree.
+            </span>
+          )}
           <b>{loaded.preview.tree.title || loaded.name}</b>
           <span>{summarize(loaded.preview)}</span>
           {(loaded.report?.length || loaded.preview.warnings.length) > 0 && (

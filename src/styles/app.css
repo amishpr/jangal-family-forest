@@ -466,4 +466,33 @@
   .printfoot .wm {
     font-size: 13px;
   }
+  /* Colors print as they are, even with "Background graphics" off in the print window (PRINT.md
+     PT-9). The tokens are light on paper (tokens.css). */
+  html {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  /* Paper has no keyboard focus: a fan wedge clicked before Cmd+P printed its focus ring */
+  :focus {
+    outline: none !important;
+  }
+  /* The Timeline and the Fan chart print in the flow of the page: the title, the view, then the
+     credit, each once, and the timeline runs on over as many pages as it needs (PT-3, PT-6). The
+     tree keeps them fixed to the page, as before. */
+  html:has(.panelview),
+  html:has(.panelview) body,
+  html:has(.panelview) #root {
+    height: auto;
+    overflow: visible;
+  }
+  .panelview {
+    position: static;
+  }
+  body:has(.panelview) :is(.printhead, .printfoot) {
+    position: static;
+  }
+  body:has(.panelview) .printfoot {
+    margin-top: 14px;
+    text-align: right;
+  }
 }

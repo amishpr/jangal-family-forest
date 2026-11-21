@@ -2,13 +2,17 @@
 // every script the built index.html asks for up front: its entry and each modulepreload.
 import { existsSync, readFileSync } from 'node:fs'
 
-const appHtml = 'dist/index.html'
-const firstLoad = existsSync(appHtml)
-  ? [...readFileSync(appHtml, 'utf8').matchAll(/<(?:script type="module"[^>]*\bsrc|link rel="modulepreload"[^>]*\bhref)="([^"]+\.js)"/g)].map(
-      (m) => 'dist/' + m[1].replace(/^.*?assets\//, 'assets/'),
-    )
-  : []
-if (!firstLoad.length) throw new Error('Build first: npm run build')
+/** Every script a built page asks for up front */
+const scriptsOf = (html) =>
+  existsSync(html)
+    ? [...readFileSync(html, 'utf8').matchAll(/<(?:script type="module"[^>]*\bsrc|link rel="modulepreload"[^>]*\bhref)="([^"]+\.js)"/g)].map(
+        (m) => 'dist/' + m[1].replace(/^.*?assets\//, 'assets/'),
+      )
+    : []
+const firstLoad = scriptsOf('dist/index.html')
+// The fill-in page (SHARE.md): relatives open it on their phones, often on mobile data
+const addLoad = scriptsOf('dist/add/index.html')
+if (!firstLoad.length || !addLoad.length) throw new Error('Build first: npm run build')
 
 export default [
   {
@@ -27,8 +31,13 @@ export default [
     limit: '200 KB',
   },
   {
+    name: `Fill-in page: JavaScript before a photo is picked (${addLoad.length} files)`,
+    path: addLoad,
+    limit: '90 KB',
+  },
+  {
     name: 'App: CSS',
-    path: 'dist/assets/app-*.css',
+    path: ['dist/assets/styles-*.css', 'dist/assets/app-*.css'],
     limit: '25 KB',
   },
   {

@@ -5,7 +5,7 @@ import type { RelativeType } from '../core/edit'
 // tab. None of it is saved, except the tab, which lives in the URL (?view=timeline).
 
 export type Tab = 'tree' | 'timeline' | 'fan'
-export type SheetName = 'me' | 'find' | 'relate' | 'bdays' | 'export' | 'about' | 'shortcuts' | 'import' | 'titles'
+export type SheetName = 'me' | 'find' | 'relate' | 'bdays' | 'export' | 'about' | 'shortcuts' | 'import' | 'titles' | 'ask'
 export type Rect = { left: number; right: number; top: number; bottom: number }
 
 export type Toast = { id: number; message: string; action?: { label: string; run: () => void } }
@@ -32,6 +32,10 @@ type UiState = {
   editingTitle: boolean
   /** The trait lit on the tree, like "Left-handed" (TODO.md F2) */
   trait: string | null
+  /** Who the Ask sheet makes a fill-in link for (SHARE.md SH-2) */
+  askFor: string | null
+  /** The start page, opened from About while there's a tree, in place of the tree */
+  startPage: boolean
   toast: Toast | null
   save: 'idle' | 'saving' | 'saved' | 'error'
 
@@ -46,6 +50,7 @@ type UiState = {
   setNaming(id: string | null, from?: { id: string; type: RelativeType }): void
   setEditingTitle(on: boolean): void
   setTrait(trait: string | null): void
+  setStartPage(on: boolean): void
   showToast(message: string, action?: Toast['action']): void
   hideToast(): void
   setSave(s: UiState['save']): void
@@ -65,6 +70,8 @@ export const useUi = create<UiState>()((set, get) => ({
   namingFrom: null,
   editingTitle: false,
   trait: null,
+  askFor: null,
+  startPage: false,
   toast: null,
   save: 'idle',
 
@@ -87,6 +94,7 @@ export const useUi = create<UiState>()((set, get) => ({
   setNaming: (naming, from) => set({ naming, namingFrom: from ?? null }),
   setEditingTitle: (editingTitle) => set({ editingTitle, card: editingTitle ? null : get().card }),
   setTrait: (trait) => set({ trait }),
+  setStartPage: (startPage) => set({ startPage, sheet: null, card: null }),
   showToast: (message, action) => set({ toast: { id: ++toastSeq, message, action } }),
   hideToast: () => set({ toast: null }),
   setSave: (save) => set({ save }),

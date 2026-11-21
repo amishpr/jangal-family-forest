@@ -26,8 +26,11 @@ scripts/.cache
 *.sw?
 
 # Leftover run output and caches gathered by the clean-up, kept only until someone deletes them
-CLEAN-UP/generated
+CLEAN-UP/
 
 # Built by `npm run build:viewer` (the family page template) before every build
 dist-viewer
 public/viewer-template.html
+
+# Planning and todo docs, and design mockups: kept on this machine, not in the repository
+TODO/

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!--csp-->
+    <!-- The fill-in page (SHARE.md SH-4). Someone sent you a link to add your details to their family
+         tree. The link carries names after the "#", which never reach the server, and the page can't
+         send anything anywhere: your answers leave only in the file you choose to send. -->
+    <title>Add your details to the family tree | Jangal (જંગલ)</title>
+    <meta name="description" content="Check your details, add a photo, and add your family. Nothing is uploaded: your answers stay on your device until you send them." />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="theme-color" content="#EFF7F1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#24211C" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- What a chat app shows when the link is pasted. It never sees the part after the "#". -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Jangal (જંગલ)" />
+    <meta property="og:title" content="Add your details to our family tree" />
+    <meta property="og:description" content="Check your details, add a photo, and add your family. It takes about five minutes, and nothing is uploaded." />
+    <meta property="og:image" content="%VITE_SITE_URL%/og/%VITE_OG_IMAGE%" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Light by default, or the theme picked in the app or here, before the first paint -->
+    <script>
+      var t = 'light'
+      try {
+        if (localStorage.getItem('jangal:theme') === 'dark') t = 'dark'
+      } catch (e) {}
+      document.documentElement.setAttribute('data-theme', t)
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <p style="padding: 24px; font: 16px system-ui, sans-serif">This page needs JavaScript to show the form. Nothing you type here is uploaded.</p>
+    </noscript>
+    <script type="module" src="/src/add/main.tsx"></script>
+  </body>
+</html>

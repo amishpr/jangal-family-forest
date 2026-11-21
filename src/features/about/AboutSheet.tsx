@@ -6,7 +6,7 @@ import credits from '../../core/sampleCredits.json'
 import { useTree } from '../../store/treeStore'
 import { useUi } from '../../store/uiStore'
 import { LeafPortrait, SeedMark } from '../../ui/Avatar'
-import { GithubLogo } from '../../ui/icons'
+import { ArrowRight, GithubLogo } from '../../ui/icons'
 import { Wordmark } from '../../ui/Wordmark'
 import { Sheet } from '../sheets/Sheet'
 import { ShortcutList } from './ShortcutsSheet'
@@ -31,6 +31,14 @@ export default function AboutSheet() {
       <p className="lede">
         <AboutText />
       </p>
+      {!readOnly && (
+        <div className="row about-start">
+          <button type="button" className="chunky" onClick={() => useUi.getState().setStartPage(true)}>
+            See the start page
+            <ArrowRight />
+          </button>
+        </div>
+      )}
       {readOnly && (
         <p className="lede">
           Someone in your family made this page for you. Everything is inside this one file: it works offline and never

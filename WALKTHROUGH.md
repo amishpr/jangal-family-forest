@@ -12,15 +12,17 @@ over someone and their immediate family lights up, search for anyone and the app
 lights the path from you, and ask "How are we related?" about any two people and get the answer in
 plain words, with every hop in between: Maya, her mother Priya, Priya's brother Arjun, his daughter
 Anika. Anika is Maya's first cousin. It's live at
-[jangal-family-forest.vercel.app](https://jangal-family-forest.vercel.app/).
+[www.jangaltree.com](https://www.jangaltree.com/).
 
 <img alt="The sample family, the Kapoor family. Ranbir Kapoor is marked as you, and the How are we related sheet shows that Kareena Kapoor Khan is his first cousin, with the path between them lit on the tree" src="docs/screenshot-light.png">
 
 There are three views of the same family (the tree, a timeline of lifespans, and a fan chart of
 ancestors) and a dock of tools that work in all of them: search, relationships, birthdays, and
 sharing. Sharing produces a single HTML page relatives can open offline, a print ready PDF poster,
-a picture, or a backup file. It also imports GEDCOM, the format Ancestry, FamilySearch, and
-MyHeritage export, so nobody has to type an existing tree in again.
+a picture, or a backup file, and the Timeline and Fan chart print straight from the browser. It
+also imports GEDCOM, the format Ancestry, FamilySearch, and MyHeritage export, so nobody has to
+type an existing tree in again. And instead of typing in a cousin's family yourself, you can send
+them a link to fill in their own.
 
 <table>
 <tr>
@@ -35,6 +37,14 @@ MyHeritage export, so nobody has to type an existing tree in again.
 
 The name is a family joke. Jangal is Gujarati and Hindi for forest, and Indian families don't have
 a family tree, they have a family forest.
+
+## Using the app
+
+A tree is built on the tree itself. There's no form to fill in first: a quick card opens inside
+the new tile for a name, a gender, and a birthday, and every tile has + buttons for its relatives.
+Each new person shows up already labeled with how they're related to you.
+
+<img alt="A wireflow of starting a tree in six steps: the start page with Start with you, the quick card for your own name, your tile with + buttons for a parent, partner, child and sibling, the quick card for a new parent, the tree grown to three generations with each tile labeled Father, Mother, Brother, Grandfather or Grandmother, and Kiran Patel's card with his parents and partner as links" src="docs/wireflow-tree.png">
 
 ## Why it is built this way
 
@@ -51,11 +61,17 @@ are partners (a family), and this person is a child of this family. Siblings, co
 needed. That keeps the data impossible to contradict itself: there's no way to record two people as
 siblings who don't share a parent.
 
-**A website and an app, kept apart.** The landing page is there to be found in search and to
-preview well when someone shares the link. Those jobs want plain, fast HTML. The app wants
-JavaScript. So the public pages are React components rendered to static HTML at build time with no
-JavaScript sent, and the app lives at `/app/` as its own page. The app is marked `noindex`, because
-everyone's tree is different and none of it belongs in search results.
+**The app is the front page.** The site has to be found in search and preview well when someone
+shares the link. Those jobs want plain HTML, and the app wants JavaScript. There used to be a
+separate landing page for that, with the app at `/app/`. It was removed so people can focus on
+the app itself and see the family tree as soon as they open the site. Now the app is the front
+page, at `/`, and its start screen says what Jangal is. Once there's a tree, `/` opens straight to
+it, and "See the start page" in About shows the start screen again: "Back to your tree" first, then
+the usual ways in. Starting a new tree from there keeps the open one saved. The build puts the same words in the page's
+`<noscript>`, with a title, a description, and JSON-LD, so search engines and link previews can
+read it without running the app. Old links to `/app/` reach a tiny page that sends them on to `/`
+with the same query. The privacy and 404 pages are still plain static HTML. The trees themselves
+only ever live in each browser, so nothing private can end up in search results.
 
 ## Tech stack and why each piece was chosen
 
@@ -70,9 +86,9 @@ Most of the code isn't React at all. Everything under `src/core/` (the graph ind
 labels, paths, branch colors, collapsing, the layout, dates, GEDCOM, the file format) is plain
 TypeScript with no framework, which is what makes it easy to test.
 
-**Vite 8.** Fast in development, and good at the build this project needs: four HTML entry points
-(the landing page, privacy, 404, and the app), a second build for the single file family page, and
-a server render of the public pages. Rolldown's code splitting groups put React in its own file,
+**Vite 8.** Fast in development, and good at the build this project needs: five HTML entry points
+(the app, the old `/app/` address, privacy, 404, and the fill-in page relatives open from a link),
+a second build for the single file family page, and a server render of the public pages. Rolldown's code splitting groups put React in its own file,
 so a deploy that only changes the app leaves it cached.
 
 **React Flow.** Pan, zoom, pinch, keyboard focus, and only drawing the tiles on screen are hard to
@@ -251,21 +267,129 @@ maps individuals and families onto the app's model. The import shows a report of
 couldn't map before changing anything. The test fixtures include Ancestry, FamilySearch, and ANSEL
 encoded files.
 
+## Asking the family
+
+The person who knows a cousin's birthday best is the cousin. From anyone's card, "Make a link"
+writes a link to a small fill-in page, where they check their details, add a photo, and add their
+partner and children. With no server, the link and the reply have to carry the data themselves.
+
+<img alt="A wireflow of asking Kareena to fill in her details, in two lanes. On your computer: her card with Make a link, then the Ask sheet with the message and the link. The link goes to Kareena's phone, where she fills in the form with her photo, then sends, and her answers are saved as a file. The reply file comes back to the review on your computer, with each change ticked, and then the combined tree with her son Taimur added. A note says there's no server in between" src="docs/wireflow-ask.png">
+
+Underneath, it's a round trip between two browsers. The only server involved hands out the fill-in
+page's files, and never sees what's in the link:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    box Your computer
+        actor You
+        participant App as Jangal
+    end
+    participant Chat as WhatsApp, text or email
+    box Kareena's phone
+        actor Kareena
+        participant Page as Fill-in page
+    end
+    participant Host as Static host
+
+    You->>App: Make a link, on Kareena's card
+    App->>App: Names only, as JSON, deflated, then base64url
+    App->>Chat: https://www.jangaltree.com/add/#35;z=eJxN...
+    Chat->>Kareena: The link
+    Kareena->>Page: Opens it
+    Page->>Host: GET /add/ (the part after the #35; never leaves her browser)
+    Host-->>Page: The page's files, with connect-src 'none'
+    Page->>Page: Inflates and checks the link, fills in the names
+    Kareena->>Page: Checks her details, adds a photo and her son
+    Page->>Page: Keeps a draft in localStorage as she types
+    Kareena->>Page: Send
+    Page->>Page: Her answers as a Jangal file, inside a page with no scripts
+    Page->>Chat: The share sheet (navigator.share), or a download
+    Chat->>You: kareena-kapoor-khan-reply.html
+    You->>App: Import the file
+    App->>App: Zod checks it, people match by id, diffPeople lists each change
+    You->>App: Ticks the changes, then Combine
+    App->>App: mergeTrees in one undo step, then saved to IndexedDB
+```
+
+- **The link.** `src/core/askLink.ts` puts a little JSON in the link: who is asked, who is asking,
+  the tree's title, and the names of the partners and children the tree already has, so the
+  relative checks them instead of typing them again. Names only, with no dates, places, notes, or
+  photos. It's encoded as UTF-8, deflated with the browser's own `CompressionStream`, and written as
+  base64url, so Gujarati names survive being pasted around. It goes after the `#`, which browsers
+  never send to the server. Anyone can write a link by hand, so reading one checks everything, and
+  a link cut short by a messaging app says so instead of showing an empty form.
+- **The page.** `/add/` is its own small entry in the build, about 80 KB of JavaScript before a
+  photo is picked, so it opens quickly on a phone with a weak signal. It reuses the person card's
+  fields and the app's photo cropper, which meant moving the cropping and canvas helpers out of
+  the app's stores first. Its Content Security Policy says `connect-src 'none'` and
+  `form-action 'none'`, so the page can't send anything anywhere, and it's left out of the service
+  worker and the sitemap. What's typed is kept in the browser as a draft, photos included, and
+  saved again whenever the page is hidden, because phones drop background tabs while someone goes
+  to find a photo.
+- **The reply.** Send turns the answers into an ordinary Jangal file, wrapped in a small HTML page
+  with no scripts (`src/core/reply.ts`). Opened on its own, the page shows what's in it. Import
+  reads the data from the same `<script type="application/json">` block a family page uses, so a
+  reply goes through the same checks as any other file. On phones, Send opens the share sheet with
+  the file attached (`navigator.share` with files). Where there's no share sheet, the file
+  downloads, and the page says where it went in the words that device uses ("In the Files app,
+  under Downloads" on an iPhone). An email link can't attach a file, and no web page can, so the
+  email button says so.
+- **The review.** A reply opens straight into the same review as combining two trees
+  (`MergeReview.tsx`), but it matches people differently. Two trees match by name, and you tick
+  who is the same person. A reply's people keep the ids the link gave them, so they match by id,
+  but only the person asked and their partners and children in this tree. A reply made by hand
+  can't reach anyone else by id; anyone else it names is matched by name, like any other file.
+  `diffPeople` in `src/core/merge.ts` lists each field that differs, with photos side by side, and
+  a reply's answers start ticked. Blank fields are simply filled in. Combine is one undo step.
+
+## Printing the Timeline and the Fan chart
+
+The poster PDF draws the tree, but the Timeline and the Fan chart are worth putting on paper too.
+Cmd+P already reached them and printed broken pages: the title on top of the buttons, a timeline
+that stopped after 14 people because its rows were placed for the screen's width, and in the dark
+theme, parchment colored text on white paper.
+
+Giving each view its own PDF, like the poster, would have meant drawing each one a second time for
+jsPDF. The fan chart is SVG styled with CSS variables, `color-mix()`, and text along arcs, which
+svg2pdf.js can't read. Browsers already save vector PDFs from the print window, so the answer was
+a print stylesheet and a Print button on each tab, with no new library:
+
+- **Light colors on paper.** The dark theme's tokens apply only inside `@media screen`, so paper
+  always gets the light ones. `print-color-adjust: exact` keeps the bars and wedges when
+  "Background graphics" is off in the print window.
+- **The page in the flow.** On these two tabs the title, the view, and "Made with Jangal" print in
+  the flow of the page instead of fixed to it, so the title prints once and the timeline can run
+  on over pages.
+- **The fan chart** prints on one page under the title, with a caption saying who it's centered
+  on. Empty ancestor places keep their dotted outline without the "+", so someone can write a
+  name in by hand.
+- **The timeline** used to measure its list in pixels with a ResizeObserver and place every bar
+  from that. Now its list is a size container, and every bar, tick, and line is placed as a share
+  of its width (`100cqw`), so the chart fits the screen or the paper without measuring anything.
+  On paper, each name has its years under it, since the year scale prints only at the top of the
+  first page, and a page break never cuts a row in half.
+
+<img alt="The Fan chart as it prints on Letter paper: the family's title, Centered on Ranbir Kapoor, 4 generations, the chart with empty places as dotted outlines, and Made with Jangal" src="docs/print-fan-light.png" width="420">
+
 ## The public site
 
-The landing, privacy, and 404 pages are React components rendered with `renderToStaticMarkup` at
-build time by `scripts/prerender.mjs`, which also inlines their CSS and adds the JSON-LD
-(`WebSite` and `WebApplication`) to the landing page. They send no JavaScript bundle. The landing
-page has two small inline scripts: one that takes returning visitors straight to their tree, and
-speculation rules that prefetch the app when someone hovers over "Start your tree".
+The privacy and 404 pages are React components rendered with `renderToStaticMarkup` at build time
+by `scripts/prerender.mjs`, which also inlines their CSS. They send no JavaScript bundle. The same
+script gives the app's page at `/` its JSON-LD (`WebSite` and `WebApplication`), the font
+preloads, and the start screen's words in its `<noscript>`.
 
-`scripts/build-seo.mjs` then writes `robots.txt` and the sitemap for the deploy context. A preview
+`scripts/build-seo.mjs` then writes `robots.txt` and the sitemap (`/` and `/privacy/`) for the
+deploy context. A preview
 deploy blocks crawlers and sends `noindex`, so previews never compete with the real site. It also
 writes a Content Security Policy onto every page, allowing each page's inline scripts by hash.
 
 The link preview image is an HTML template rendered by Playwright. The screenshots in the README
 and this walkthrough are the real app too: `scripts/build-screens.mjs` opens the production build
 with the sample family, sets up each screen, captures it in both themes, and shrinks it with sharp.
+The wireflows are made the same way: the script runs each flow for real, from a new tree or Kareena's
+card, captures every step as it happens, and lays the steps out with `scripts/wireflow.html`, which
+draws the arrows from where the steps actually land.
 
 ## The wordmark
 
@@ -299,8 +423,8 @@ page, so now only the selected tab does.
 
 ## Speed
 
-The public pages meet their targets: Lighthouse mobile scores 100 in every category, the largest
-paint is at 1.4 s, and nothing shifts. The landing page is 9.9 KB of HTML with its CSS inlined.
+The privacy page meets its targets: Lighthouse mobile scores 100 in every category, the largest
+paint is at 1.1 to 1.2 s, and nothing shifts. It's 7.2 KB of HTML with its CSS inlined.
 
 The app is harder. Its first load is 155 KB of JavaScript (Brotli), which is inside the 200 KB
 budget, and everything not needed for the first view loads on demand. But on Lighthouse's mobile
@@ -403,13 +527,37 @@ scans ran at 1440 px, so they never saw it. Lighthouse's mobile run did. The lab
 visually hidden but still read out, and the accessibility tests also run at phone width.
 
 **A missing page said 200.** Vite's preview server treated the site as a single page app and
-answered every unknown address with the landing page and a 200. Setting `appType: 'mpa'` makes
+answered every unknown address with the front page and a 200. Setting `appType: 'mpa'` makes
 missing pages a real 404 locally, as they are on the hosts, so the end to end test of the 404
 page tests something real.
 
 **The Content Security Policy blocked the prefetch rules.** Newer Chromium accepts the
 `'inline-speculation-rules'` keyword, but the version Playwright 1.48 ships with rejected it and
 blocked the rules. Allowing the rules by their hash as well works everywhere.
+
+**The app's CSS was renamed after a photo helper.** Once the fill-in page shared code with the
+app, Rolldown put the CSS they had in common into one file named after a module in it,
+`image-*.css`, and pulled the Timeline and Fan chart styles into the first load along with it. A
+code splitting group for the app's stylesheet and fonts gives them a file of their own again, and
+the size budget counts that file.
+
+**Start over kept what was typed.** The fill-in form's fields aren't controlled by React; they're
+read back with `FormData`, like the person card's. So Start over cleared the draft, but the
+browser kept showing every value in the fields. Giving the form a key that changes on Start over
+makes React build a fresh form.
+
+**A focus ring printed.** A fan wedge clicked just before Cmd+P printed with its focus ring
+around it. Paper has no keyboard focus, so focus rings are turned off in print.
+
+**Gmail put the request in spam.** The first test email asking a relative to fill in their details
+went straight to spam. Most of that was the test itself: the link pointed at a laptop on the home
+network (`http://192.168…:5199`), and a bare IP address with a port is a classic phishing sign.
+The rest was the message. It was one sentence asking someone to "check your details" next to a
+long link of random letters, under the subject "Our family tree". It's now a short letter that
+names the people already filled in and ends with the sender's name, under a subject that names
+the person and the tree. The link's data is deflated, which makes it 40 to 50% shorter, and links
+from before that still open. The email stays plain text: a styled email with images from a new
+domain looks even more like a template.
 
 ## What changed from the plan
 

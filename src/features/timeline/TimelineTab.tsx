@@ -1,19 +1,22 @@
 import '../../styles/timeline.css'
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useHome, useIndex, useSides, sideClass } from '../../app/derive'
 import { tabGoTo } from '../../app/nav'
-import { age, decimalYear, today } from '../../core/dates'
+import { age, decimalYear, today, yearsLabel } from '../../core/dates'
 import { fullName, isDeceased } from '../../core/model'
 import { generationName, generations } from '../../core/title'
 import { immediateFamily } from '../../core/path'
 import { useUi } from '../../store/uiStore'
 import { Avatar, SeedMark } from '../../ui/Avatar'
-import { CalendarCheck, Pause, Play } from '../../ui/icons'
+import { CalendarCheck, Pause, Play, Printer } from '../../ui/icons'
 import { reduceMotion } from '../canvas/camera'
 
 // The Timeline tab (PLAN X-4, 8.11). Everyone's lifespan as a bar in their branch color, grouped by
 // generation. Drag the year marker (or use the arrow keys on it) to see who was alive that year and
 // how old they were. "Watch the family grow" plays the years from the oldest birth to today.
+// Every bar, tick and line is placed as a share of the list's width (100cqw), not in pixels, so the
+// chart fits any width, the screen's or the paper's (PRINT.md PT-7). The names column is
+// --tl-name in timeline.css.
 
 const SIDE_ORDER: Record<string, number> = { paternal: 0, own: 1, maternal: 2, other: 3 }
 const PLAY_MS = 9000
@@ -24,21 +27,11 @@ export default function TimelineTab() {
   const home = useHome()
   const hover = useUi((s) => s.hover)
   const scroller = useRef<HTMLDivElement>(null)
-  const [width, setWidth] = useState(0)
   const [year, setYearState] = useState<number | null>(null)
   const [playing, setPlaying] = useState(false)
   // Today, read once when the tab opens
   const [now] = useState(today)
   const NOW = now.getFullYear()
-
-  useLayoutEffect(() => {
-    const el = scroller.current
-    if (!el) return
-    const ro = new ResizeObserver(() => setWidth(el.clientWidth))
-    ro.observe(el)
-    setWidth(el.clientWidth)
-    return () => ro.disconnect()
-  }, [])
 
   const data = useMemo(() => {
     if (!ix || !sides) return null
@@ -102,13 +95,13 @@ export default function TimelineTab() {
   if (!ix || !sides || !data) return null
   const { gen, Y0, rows } = data
   const Y1 = NOW + 4
-  const NAME = typeof window !== 'undefined' && window.innerWidth < 760 ? 132 : 230
-  const W = Math.max(0, width - 16)
-  const px = W ? (W - NAME - 64) / (Y1 - Y0) : 0
-  const x = (y: number) => NAME + (y - Y0) * px
+  // The years' share of the width left after the names column and 80 px for the end labels
+  const share = (years: number) => `(100cqw - var(--tl-name) - 80px) * ${years / (Y1 - Y0)}`
+  const x = (y: number) => `calc(var(--tl-name) + ${share(y - Y0)})`
   const setYear = (y: number | null) => setYearState(y == null ? null : Math.max(Y0, Math.min(NOW, Math.round(y))))
   const Y = year ?? NOW
-  const markerAt = x(Y + (year == null ? now.getMonth() / 12 : 0.5))
+  const marker = Y + (year == null ? now.getMonth() / 12 : 0.5)
+  const markerAt = x(marker)
   const homeGen = home ? gen.get(home) : undefined
   const lit = hover ? immediateFamily(ix, hover).persons : null
 
@@ -119,8 +112,10 @@ export default function TimelineTab() {
   let unborn = 0
   let gone = 0
   const yearFromX = (clientX: number) => {
-    const r = scroller.current!.firstElementChild!.getBoundingClientRect()
-    return Y0 + (clientX - r.left - NAME) / px
+    const inner = scroller.current!.firstElementChild as HTMLElement
+    const r = inner.getBoundingClientRect()
+    const name = parseFloat(getComputedStyle(inner).getPropertyValue('--tl-name'))
+    return Y0 + ((clientX - r.left - name) / (r.width - name - 80)) * (Y1 - Y0)
   }
 
   const body: React.ReactNode[] = []
@@ -171,17 +166,21 @@ export default function TimelineTab() {
           useUi.getState().openCard(id, 'view', r)
         }}
       >
-        <span className="tl-name" style={{ width: NAME }}>
+        <span className="tl-name">
           <Avatar person={p} size={30} side={side} />
-          {fullName(p)}
+          <span className="tl-nm">
+            {fullName(p)}
+            {/* On paper only, where the year scale is pages away (PT-8) */}
+            <small className="tl-yrs">{yearsLabel(p)}</small>
+          </span>
         </span>
-        {b != null && e != null && W > 0 ? (
+        {b != null && e != null ? (
           <>
             <span
               className={`tl-bar ${dead ? '' : 'living'} ${approx ? 'approx' : ''}`}
-              style={{ left: x(b), width: Math.max(6, x(e) - x(b)) }}
+              style={{ left: x(b), width: `max(6px, ${share(e - b)})` }}
             />
-            <span className="tl-end" style={{ left: x(e) + 8 }}>
+            <span className="tl-end" style={{ left: `calc(${x(e)} + 8px)` }}>
               {dead ? (
                 <>
                   <SeedMark />
@@ -198,7 +197,7 @@ export default function TimelineTab() {
             )}
           </>
         ) : (
-          <span className="tl-none" style={{ left: NAME + 12 }}>
+          <span className="tl-none">
             Birth year not recorded
           </span>
         )}
@@ -228,7 +227,7 @@ export default function TimelineTab() {
         <div className="tl-top">
           <div>
             <h2>Lifespans</h2>
-            <div className="tl-read" aria-live="polite">
+            <div className={`tl-read ${year == null ? 'hint' : ''}`} aria-live="polite">
               {readout}
             </div>
           </div>
@@ -247,6 +246,11 @@ export default function TimelineTab() {
             >
               <CalendarCheck />
               Today
+            </button>
+            {/* The browser's print window, where Save as PDF makes the PDF (PRINT.md PT-1) */}
+            <button type="button" className="chunky" onClick={() => window.print()}>
+              <Printer />
+              Print
             </button>
           </div>
         </div>
@@ -269,50 +273,51 @@ export default function TimelineTab() {
             }}
           >
             <div className="tl-axis">
-              {W > 0 &&
-                ticks.map((y) => (
-                  <span key={y} className="tick" style={{ left: x(y) }}>
-                    {y}
-                  </span>
-                ))}
-              {W > 0 && (
-                <button
-                  type="button"
-                  className="tl-knob"
-                  style={{ left: markerAt }}
-                  role="slider"
-                  aria-label="Year"
-                  aria-valuemin={Y0}
-                  aria-valuemax={NOW}
-                  aria-valuenow={Y}
-                  aria-valuetext={year == null ? 'Today' : String(Y)}
-                  onKeyDown={(e) => {
-                    const step = e.shiftKey ? 10 : 1
-                    if (e.key === 'ArrowLeft') {
-                      e.preventDefault()
-                      stop()
-                      setYear(Y - step)
-                    } else if (e.key === 'ArrowRight') {
-                      e.preventDefault()
-                      stop()
-                      if (Y + step >= NOW) setYear(null)
-                      else setYear(Y + step)
-                    } else if (e.key === 'Home') {
-                      e.preventDefault()
-                      setYear(Y0)
-                    } else if (e.key === 'End') {
-                      e.preventDefault()
-                      setYear(null)
-                    }
-                  }}
-                >
-                  {year == null ? 'Today' : Y}
-                </button>
-              )}
+              {ticks.map((y) => (
+                // Paper labels only every 20 years, since the decades sit close together there
+                // --off is how far the year sits from the marker, so a year under it can hide (timeline.css)
+                <span key={y} className={`tick ${y % 20 ? 'minor' : ''}`} style={{ left: x(y), ['--off' as string]: `calc(${share(y - marker)})` }}>
+                  {y}
+                </span>
+              ))}
+              <button
+                type="button"
+                className="tl-knob"
+                style={{ left: markerAt }}
+                role="slider"
+                aria-label="Year"
+                aria-valuemin={Y0}
+                aria-valuemax={NOW}
+                aria-valuenow={Y}
+                aria-valuetext={year == null ? 'Today' : String(Y)}
+                onKeyDown={(e) => {
+                  const step = e.shiftKey ? 10 : 1
+                  if (e.key === 'ArrowLeft') {
+                    e.preventDefault()
+                    stop()
+                    setYear(Y - step)
+                  } else if (e.key === 'ArrowRight') {
+                    e.preventDefault()
+                    stop()
+                    if (Y + step >= NOW) setYear(null)
+                    else setYear(Y + step)
+                  } else if (e.key === 'Home') {
+                    e.preventDefault()
+                    setYear(Y0)
+                  } else if (e.key === 'End') {
+                    e.preventDefault()
+                    setYear(null)
+                  }
+                }}
+              >
+                {year == null ? 'Today' : Y}
+              </button>
             </div>
-            {W > 0 && ticks.map((y) => <div key={y} className="gridline" style={{ left: x(y) }} />)}
+            {ticks.map((y) => (
+              <div key={y} className="gridline" style={{ left: x(y) }} />
+            ))}
             {body}
-            {W > 0 && <div className="tl-cursor" style={{ left: markerAt }} />}
+            <div className="tl-cursor" style={{ left: markerAt }} />
           </div>
         </div>
       </div>

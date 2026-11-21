@@ -9,7 +9,7 @@ import { useUi } from '../store/uiStore'
 import { EmptyStart, Skeleton } from './EmptyStart'
 import { useShortcuts } from './shortcuts'
 import { Toast } from './Toast'
-import { PrintHead } from './PrintHead'
+import { PrintFoot, PrintHead } from './PrintHead'
 
 // The app screen (PLAN 7). The Tree tab, the dock and the chrome load first. Everything else
 // (the other tabs, the person card, the sheets) loads the first time it's opened (PLAN 10.5).
@@ -29,6 +29,8 @@ export function App() {
   const colors = useSettings((s) => s.branchColors)
   const readOnly = useUi((s) => s.readOnly)
   const saveFailed = useUi((s) => s.save === 'error')
+  // With a tree, the start page shows only when it's opened from About
+  const startPage = useUi((s) => s.startPage)
   useShortcuts()
 
   // The tree is the heavy part of the first render. The chrome (the title, tabs and dock) paints
@@ -57,7 +59,7 @@ export function App() {
           {error}
         </div>
       )}
-      {status === 'empty' && <EmptyStart />}
+      {(status === 'empty' || (status === 'ready' && startPage)) && <EmptyStart />}
       {saveFailed && (
         // PLAN 6.10: never lose work to a storage problem
         <div className="banner" role="alert">
@@ -71,8 +73,9 @@ export function App() {
           </button>
         </div>
       )}
-      {status === 'ready' && (
+      {status === 'ready' && !startPage && (
         <>
+          <PrintHead />
           {tab === 'tree' && treeShown && <TreeCanvas />}
           <Suspense fallback={null}>
             {tab === 'timeline' && <TimelineTab />}
@@ -84,7 +87,7 @@ export function App() {
           <Dock />
           {tab === 'tree' && <TraitBar />}
           {readOnly && <MadeCredit />}
-          <PrintHead />
+          <PrintFoot />
         </>
       )}
       <Suspense fallback={null}>

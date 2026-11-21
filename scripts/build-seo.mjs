@@ -65,8 +65,11 @@ async function htmlFiles(dir) {
 for (const file of await htmlFiles(dist)) {
   let html = await readFile(file, 'utf8')
   const isApp = file.pathname === new URL('index.html', dist).pathname
+  // The fill-in page (SHARE.md SH-4) runs its own scripts and crops photos, but connects to nothing:
+  // a relative's answers can only leave in the file they choose to send
+  const isAdd = file.pathname === new URL('add/index.html', dist).pathname
   const hashes = inlineScripts(html).map(hashOf)
-  const scripts = [isApp ? "'self'" : '', ...hashes, html.includes('type="speculationrules"') ? "'inline-speculation-rules'" : '']
+  const scripts = [isApp || isAdd ? "'self'" : '', ...hashes, html.includes('type="speculationrules"') ? "'inline-speculation-rules'" : '']
     .filter(Boolean)
     .join(' ')
   const csp = [
@@ -74,9 +77,9 @@ for (const file of await htmlFiles(dist)) {
     `script-src ${scripts || "'none'"}`,
     // React sets some styles inline, and the app writes a small stylesheet for highlighting
     "style-src 'self' 'unsafe-inline'",
-    isApp ? "img-src 'self' data: blob:" : "img-src 'self' data:",
-    isApp ? "font-src 'self' data:" : "font-src 'self'",
-    "connect-src 'self'",
+    isApp || isAdd ? "img-src 'self' data: blob:" : "img-src 'self' data:",
+    isApp || isAdd ? "font-src 'self' data:" : "font-src 'self'",
+    isAdd ? "connect-src 'none'" : "connect-src 'self'",
     isApp ? "worker-src 'self'" : '',
     "manifest-src 'self'",
     "object-src 'none'",

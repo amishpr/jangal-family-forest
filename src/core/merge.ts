@@ -1,5 +1,5 @@
 import { newFamilyId, newPersonId } from './edit'
-import type { Family, LifeEvent, Person, TreeCore } from './model'
+import type { Family, FamilyStatus, LifeEvent, Person, TreeCore } from './model'
 import { fullName, isPet } from './model'
 import { formatDate } from './dates'
 
@@ -26,11 +26,15 @@ const nameKeys = (p: Person) => {
  * People who look like the same person in both trees (TODO.md CM-2): the same name, accents and case
  * ignored, and the same birth year (strong), or no year on one side (not strong). Different years
  * are different people, and pets only match pets. Each person matches once, strong matches first.
+ * sameIds are people known to be the same in both, like those a fill-in link carried (SHARE.md
+ * SH-13): they match by id whatever their names say, ahead of everyone else.
  */
-export function findMatches(base: Graph, other: Graph): Match[] {
+export function findMatches(base: Graph, other: Graph, sameIds: string[] = []): Match[] {
   const byKey = new Map<string, Person[]>()
   for (const p of Object.values(base.people)) for (const k of nameKeys(p)) byKey.set(k, [...(byKey.get(k) ?? []), p])
-  const found: Match[] = []
+  const found: Match[] = sameIds
+    .filter((id) => base.people[id] && other.people[id] && isPet(base.people[id]) === isPet(other.people[id]))
+    .map((id) => ({ base: id, other: id, strong: true }))
   for (const o of Object.values(other.people)) {
     const oy = o.birth?.date?.year
     const seen = new Set<string>()
@@ -44,7 +48,7 @@ export function findMatches(base: Graph, other: Graph): Match[] {
       }
     }
   }
-  // Strong ones first, then each person only once on each side
+  // Strong ones first (the sort keeps the same ids ahead), then each person only once on each side
   found.sort((a, b) => Number(b.strong) - Number(a.strong))
   const usedBase = new Set<string>()
   const usedOther = new Set<string>()
@@ -61,6 +65,8 @@ export type MergeResult = { ok: true; id: string; report: MergeReport } | { ok: 
 
 const blank = (v: unknown) => v === undefined || v === null || v === '' || (Array.isArray(v) && !v.length)
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
+/** Two values that really differ: not just in case, accents or spacing */
+const differ = (a: unknown, b: unknown) => !same(a, b) && squash(String(a)) !== squash(String(b))
 
 // Fields a matched person takes from the other tree when they're blank here, and how to name them
 // in the list of differences
@@ -78,18 +84,98 @@ const FIELDS: [keyof Person, string][] = [
   ['photoId', 'photo'],
 ]
 
-function fillEvent(here: LifeEvent | undefined, there: LifeEvent | undefined, name: string, what: string, conflicts: string[]): LifeEvent | undefined {
+/** take: the keys picked in the review (key is "<their id>:birth"), or undefined to keep this tree's and list the rest */
+function fillEvent(here: LifeEvent | undefined, there: LifeEvent | undefined, name: string, what: string, key: string, conflicts: string[], take?: Set<string>): LifeEvent | undefined {
   if (!there) return here
   const out: LifeEvent = { ...here }
   if (there.date) {
-    if (!out.date) out.date = there.date
-    else if (!same(out.date, there.date)) conflicts.push(`${name}: the ${what} date is ${formatDate(out.date)} here and ${formatDate(there.date)} in the other tree. ${formatDate(out.date)} was kept.`)
+    if (!out.date || take?.has(`${key}.date`)) out.date = there.date
+    else if (!take && !same(out.date, there.date)) conflicts.push(`${name}: the ${what} date is ${formatDate(out.date)} here and ${formatDate(there.date)} in the other tree. ${formatDate(out.date)} was kept.`)
   }
   if (there.place) {
-    if (!out.place) out.place = there.place
-    else if (out.place !== there.place) conflicts.push(`${name}: the ${what} place is ${out.place} here and ${there.place} in the other tree. ${out.place} was kept.`)
+    if (!out.place || take?.has(`${key}.place`)) out.place = there.place
+    else if (!take && out.place !== there.place) conflicts.push(`${name}: the ${what} place is ${out.place} here and ${there.place} in the other tree. ${out.place} was kept.`)
   }
   return out
+}
+
+/** One difference the review offers (SHARE.md SH-14), named for people to read */
+export type Change = { key: string; personId: string; who: string; label: string; here: string; theirs: string; photo?: boolean }
+
+const STATUS_WORDS: Record<FamilyStatus, string> = {
+  married: 'Married',
+  partners: 'Partners',
+  engaged: 'Engaged',
+  divorced: 'Divorced',
+  separated: 'Separated',
+  widowed: 'Widowed',
+}
+const partnerKey = (ids: string[]) => [...ids].sort().join('+')
+
+/**
+ * What combining would change for the people in both trees, before anything changes: each value
+ * that differs, as a choice, and how many blanks the other tree fills in. Keys are what mergeTrees
+ * takes: "<their id>:<field>", and "fam:<their family id>:start" or ":status" for a partnership.
+ * Photos are offered only when asked (a reply's photos are new; another tree's are usually the
+ * same pictures under new ids). For a photo, here and theirs are the two photo ids.
+ */
+export function diffPeople(base: Graph, other: Graph, pairs: [string, string][], opts: { photos?: boolean } = {}): { changes: Change[]; fills: number } {
+  const changes: Change[] = []
+  let fills = 0
+  const toHere = new Map(pairs.map(([here, there]) => [there, here]))
+  for (const [hid, oid] of pairs) {
+    const h = base.people[hid]
+    const o = other.people[oid]
+    if (!h || !o) continue
+    const who = h.firstName || fullName(h)
+    const offer = (field: string, label: string, here: string, theirs: string, photo?: boolean) =>
+      changes.push({ key: `${oid}:${field}`, personId: hid, who, label, here, theirs, ...(photo ? { photo } : {}) })
+    for (const [k, label] of FIELDS) {
+      const mine = h[k]
+      const theirs = o[k]
+      if (blank(theirs)) continue
+      if (blank(mine)) fills++
+      else if (k === 'photoId') {
+        if (opts.photos && mine !== theirs) offer(k, label, String(mine), String(theirs), true)
+      }
+      else if (differ(mine, theirs)) offer(k, label, String(mine), String(theirs))
+    }
+    if (o.gender && o.gender !== 'unknown') {
+      if (!h.gender || h.gender === 'unknown') fills++
+      else if (h.gender !== o.gender) offer('gender', 'gender', h.gender, o.gender)
+    }
+    for (const [ev, what] of [['birth', 'birthday'], ['death', 'date of passing']] as const) {
+      const a = h[ev]
+      const b = o[ev]
+      if (b?.date) {
+        if (!a?.date) fills++
+        else if (!same(a.date, b.date)) offer(`${ev}.date`, what, formatDate(a.date, true), formatDate(b.date, true))
+      }
+      if (b?.place) {
+        if (!a?.place) fills++
+        else if (differ(a.place, b.place)) offer(`${ev}.place`, ev === 'birth' ? 'born in' : 'place of passing', a.place, b.place)
+      }
+    }
+  }
+  // Partnerships both trees have: the same two people, as matched
+  const famHere = new Map(Object.values(base.families).filter((f) => f.partnerIds.length === 2).map((f) => [partnerKey(f.partnerIds), f]))
+  for (const theirs of Object.values(other.families)) {
+    if (theirs.partnerIds.length !== 2 || !theirs.partnerIds.every((id) => toHere.has(id))) continue
+    const ids = theirs.partnerIds.map((id) => toHere.get(id)!)
+    const here = famHere.get(partnerKey(ids))
+    if (!here) continue
+    const who = ids.map((id) => base.people[id]?.firstName || 'Someone').join(' and ')
+    const offer = (field: string, label: string, a: string, b: string) => changes.push({ key: `fam:${theirs.id}:${field}`, personId: ids[0], who, label, here: a, theirs: b })
+    if (theirs.status) {
+      if (!here.status) fills++
+      else if (here.status !== theirs.status) offer('status', 'together as', STATUS_WORDS[here.status], STATUS_WORDS[theirs.status])
+    }
+    if (theirs.start) {
+      if (!here.start) fills++
+      else if (!same(here.start, theirs.start)) offer('start', ['married', 'divorced', 'widowed'].includes(theirs.status ?? here.status ?? '') ? 'wedding day' : 'together since', formatDate(here.start, true), formatDate(theirs.start, true))
+    }
+  }
+  return { changes, fills }
 }
 
 /**
@@ -98,8 +184,11 @@ function fillEvent(here: LifeEvent | undefined, there: LifeEvent | undefined, na
  * somewhere to be seen. Matched people keep what's here, take what's blank from the other tree,
  * and any differences are listed. Links that would make someone their own ancestor, or give
  * someone a second set of parents, are left out and listed too.
+ * take is the differences picked in the review (diffPeople's keys, SHARE.md SH-15): those take the
+ * other tree's value. With take given, the review already showed every difference, so the ones
+ * left unpicked aren't listed again.
  */
-export function mergeTrees(doc: Graph, other: Graph, pairs: [string, string][]): MergeResult {
+export function mergeTrees(doc: Graph, other: Graph, pairs: [string, string][], take?: Set<string>): MergeResult {
   // Check everything before changing anything
   if (!pairs.length) return { ok: false, reason: 'Choose at least one person who is in both trees' }
   const map = new Map<string, string>()
@@ -133,13 +222,13 @@ export function mergeTrees(doc: Graph, other: Graph, pairs: [string, string][]):
       const mine = here[k]
       const theirs = o[k]
       if (blank(theirs)) continue
-      if (blank(mine)) (here as Record<string, unknown>)[k] = theirs
-      else if (!same(mine, theirs) && squash(String(mine)) !== squash(String(theirs)) && k !== 'photoId') report.conflicts.push(`${name}: the ${label} is ${String(mine).slice(0, 60)} here and ${String(theirs).slice(0, 60)} in the other tree. This tree's was kept.`)
+      if (blank(mine) || take?.has(`${o.id}:${k}`)) (here as Record<string, unknown>)[k] = theirs
+      else if (!take && differ(mine, theirs) && k !== 'photoId') report.conflicts.push(`${name}: the ${label} is ${String(mine).slice(0, 60)} here and ${String(theirs).slice(0, 60)} in the other tree. This tree's was kept.`)
     }
-    if ((here.gender ?? 'unknown') === 'unknown' && o.gender && o.gender !== 'unknown') here.gender = o.gender
-    const birth = fillEvent(here.birth, o.birth, name, 'birth', report.conflicts)
+    if (o.gender && o.gender !== 'unknown' && ((here.gender ?? 'unknown') === 'unknown' || take?.has(`${o.id}:gender`))) here.gender = o.gender
+    const birth = fillEvent(here.birth, o.birth, name, 'birth', `${o.id}:birth`, report.conflicts, take)
     if (birth) here.birth = birth
-    const death = fillEvent(here.death, o.death, name, 'death', report.conflicts)
+    const death = fillEvent(here.death, o.death, name, 'death', `${o.id}:death`, report.conflicts, take)
     if (death) here.death = death
     if (o.deceased) here.deceased = true
     const tags = [...new Set([...(here.tags ?? []), ...(o.tags ?? [])])]
@@ -184,8 +273,8 @@ export function mergeTrees(doc: Graph, other: Graph, pairs: [string, string][]):
       fam = fid ? doc.families[fid] : undefined
     }
     if (fam) {
-      if (!fam.status && theirs.status) fam.status = theirs.status
-      if (!fam.start && theirs.start) fam.start = theirs.start
+      if (theirs.status && (!fam.status || take?.has(`fam:${theirs.id}:status`))) fam.status = theirs.status
+      if (theirs.start && (!fam.start || take?.has(`fam:${theirs.id}:start`))) fam.start = theirs.start
       if (!fam.end && theirs.end) fam.end = theirs.end
     } else {
       fam = { ...theirs, id: newFamilyId(), partnerIds: partners, children: [] }

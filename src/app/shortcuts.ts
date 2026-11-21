@@ -63,6 +63,11 @@ export function useShortcuts() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const ui = useUi.getState()
+      // The start page stands in for the tree, so only Esc, back to the tree, works there
+      if (ui.startPage) {
+        if (e.key === 'Escape') ui.setStartPage(false)
+        return
+      }
       if (e.key === 'Escape') {
         if (ui.editingTitle) ui.setEditingTitle(false)
         else if (ui.card) ui.closeCard()

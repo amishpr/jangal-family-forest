@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { relateWith, setMe, showPerson, showTrait } from '../../app/actions'
+import { askToFillIn, relateWith, setMe, showPerson, showTrait } from '../../app/actions'
 import { lineOf, relationTo, sideClass, titleLangOf, useHome, useIndex, useSides, useTitles } from '../../app/derive'
 import { age, formatDate, inDays, MONTHS, nextBirthday, yearsLabel } from '../../core/dates'
 import { partnerWord, relation } from '../../core/kinship'
@@ -8,7 +8,7 @@ import type { Person } from '../../core/model'
 import { fullName, isDeceased, isPet } from '../../core/model'
 import { useUi } from '../../store/uiStore'
 import { Avatar, SeedMark } from '../../ui/Avatar'
-import { Cake, MapPin, Path, PencilSimple, Plus, UserCircle, UserCircleCheck, X } from '../../ui/icons'
+import { Cake, MapPin, PaperPlaneTilt, Path, PencilSimple, Plus, UserCircle, UserCircleCheck, X } from '../../ui/icons'
 import { AddPanel } from './AddPanel'
 import { backToBirthOrder } from '../canvas/drag'
 import { linkify } from './linkify'
@@ -258,6 +258,16 @@ export function CardView({ person: p }: { person: Person }) {
           </button>
           )}
         </div>
+        {/* A living person can be asked to fill in their own details (SHARE.md SH-1) */}
+        {!readOnly && !pet && !dead && id !== home && (
+          <div className="meline">
+            <PaperPlaneTilt />
+            <span>Ask {p.firstName || 'them'} to check the details and add a photo</span>
+            <button type="button" className="mini" onClick={() => askToFillIn(id)}>
+              Make a link
+            </button>
+          </div>
+        )}
         {pet ? null : id === home ? (
           <div className="meline">
             <UserCircleCheck />

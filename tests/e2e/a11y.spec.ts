@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
-import { dock, holdAndMove, openSample, sprout, tile } from './helpers'
+import { dock, find, holdAndMove, openSample, sprout, tile } from './helpers'
 
 // PLAN 8.15: no serious accessibility problems, in both themes
 async function scan(page: Page, exclude?: string) {
@@ -105,6 +105,24 @@ for (const scheme of ['light', 'dark'] as const) {
       expect(await scan(page, '.world')).toEqual([])
       await page.keyboard.press('Escape')
       await page.mouse.up()
+    })
+
+    test('the fill-in page and the Ask sheet (SHARE.md)', async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 })
+      await openSample(page)
+      await find(page, 'randhir')
+      await page.waitForTimeout(900)
+      await tile(page, 'randhir').click()
+      await page.locator('.pop').getByRole('button', { name: 'Make a link' }).click()
+      await page.locator('.ask-sheet').waitFor()
+      await expect(page.locator('.ask-msg')).toContainText('/add/#')
+      // Find left the path to Randhir lit and everyone else dimmed on purpose, so only the sheet is scanned
+      expect(await scan(page, '.react-flow'), 'Ask sheet').toEqual([])
+      const url = (await page.locator('.ask-msg').textContent())!.match(/https?:\/\/\S+/)![0]
+      await page.goto(url)
+      await page.getByRole('heading', { name: 'Hi Randhir!' }).waitFor()
+      expect(await scan(page), 'Fill-in page').toEqual([])
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0)
     })
 
     test('the timeline and the fan chart', async ({ page }) => {

@@ -29,6 +29,15 @@ export function Privacy() {
           stops it from connecting to the internet at all, so opening it can't send anything anywhere.
         </p>
 
+        <h2>Asking relatives to fill in their details</h2>
+        <p>
+          You can send a relative a link to add their own details and photos. The link holds their name, the names of their
+          partners and children in your tree, and your tree's title, after a "#" in the address. Browsers never send that part to
+          a server, so this site never sees it. The page the link opens runs on your relative's device and can't connect to
+          anything. Their answers and photos leave only in the file they choose to send you, and a draft stays in their browser
+          until they start over.
+        </p>
+
         <h2>No tracking</h2>
         <p>
           There are no analytics, ads, cookies or tracking scripts, and no fonts or code from other companies. The only small
