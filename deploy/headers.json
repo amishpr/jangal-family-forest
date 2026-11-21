@@ -19,6 +19,7 @@
     { "path": "/", "headers": { "Cache-Control": "public, max-age=0, must-revalidate" } },
     { "path": "/app/", "headers": { "Cache-Control": "public, max-age=0, must-revalidate", "X-Robots-Tag": "noindex, follow" } },
     { "path": "/privacy/", "headers": { "Cache-Control": "public, max-age=0, must-revalidate" } },
+    { "path": "/add/", "headers": { "Cache-Control": "public, max-age=0, must-revalidate", "X-Robots-Tag": "noindex, nofollow", "Referrer-Policy": "no-referrer" } },
     { "path": "/sw.js", "headers": { "Cache-Control": "public, max-age=0, must-revalidate" } },
     { "path": "/viewer-template.html", "headers": { "Cache-Control": "public, max-age=0, must-revalidate", "X-Robots-Tag": "noindex" } },
     { "path": "/robots.txt", "headers": { "Cache-Control": "public, max-age=3600" } },
