@@ -141,4 +141,40 @@
     fill: var(--ink);
     letter-spacing: -0.01em;
   }
+
+  /* On paper (PRINT.md PT-4, PT-5): one page, the chart as big as fits under the family's title,
+     with a caption in place of the bar. Empty ancestor places keep their dotted outline to write a
+     name in, without the "+". "Add a child" isn't a place everyone has, so it doesn't print. */
+  .fan-cap {
+    display: none;
+  }
+  @media print {
+    .fan-bar,
+    .ghost-plus,
+    .fw.ghost[data-add-child] {
+      display: none;
+    }
+    .fan-cap {
+      display: block;
+      margin: 10px 0 0;
+      text-align: center;
+      font: 700 14px var(--font-ui);
+      color: var(--ink-2);
+    }
+    .fan-wrap {
+      display: block;
+      height: auto;
+    }
+    /* In print, vh is a share of the page */
+    .fan-stage > svg {
+      position: static;
+      width: 100%;
+      height: auto;
+      max-height: 70vh;
+      margin: 14px auto 0;
+    }
+    .fw:not(.ghost) {
+      stroke: #fff;
+    }
+  }
 }

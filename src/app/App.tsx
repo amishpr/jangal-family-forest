@@ -9,7 +9,7 @@ import { useUi } from '../store/uiStore'
 import { EmptyStart, Skeleton } from './EmptyStart'
 import { useShortcuts } from './shortcuts'
 import { Toast } from './Toast'
-import { PrintHead } from './PrintHead'
+import { PrintFoot, PrintHead } from './PrintHead'
 
 // The app screen (PLAN 7). The Tree tab, the dock and the chrome load first. Everything else
 // (the other tabs, the person card, the sheets) loads the first time it's opened (PLAN 10.5).
@@ -73,6 +73,7 @@ export function App() {
       )}
       {status === 'ready' && (
         <>
+          <PrintHead />
           {tab === 'tree' && treeShown && <TreeCanvas />}
           <Suspense fallback={null}>
             {tab === 'timeline' && <TimelineTab />}
@@ -84,7 +85,7 @@ export function App() {
           <Dock />
           {tab === 'tree' && <TraitBar />}
           {readOnly && <MadeCredit />}
-          <PrintHead />
+          <PrintFoot />
         </>
       )}
       <Suspense fallback={null}>

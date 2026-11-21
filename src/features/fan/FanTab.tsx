@@ -11,7 +11,7 @@ import type { Sides } from '../../core/sides'
 import { useTree } from '../../store/treeStore'
 import { useUi } from '../../store/uiStore'
 import { usePhotoUrl } from '../../store/photos'
-import { ArrowDown, CaretRight, Crosshair } from '../../ui/icons'
+import { ArrowDown, CaretRight, Crosshair, Printer } from '../../ui/icons'
 import { reduceMotion } from '../canvas/camera'
 import { toast } from '../../app/actions'
 
@@ -483,8 +483,19 @@ export default function FanTab() {
                 Descendants
               </button>
             </div>
+            {/* The browser's print window, where Save as PDF makes the PDF (PRINT.md PT-1) */}
+            <div className="seg">
+              <button type="button" onClick={() => window.print()}>
+                <Printer />
+                Print
+              </button>
+            </div>
           </div>
         </div>
+        {/* On paper only, in place of the bar above (PT-4) */}
+        <p className="fan-cap">
+          Centered on {fullName(cp)} · {gens} generations
+        </p>
         <div className="fan-stage">
           <svg
             className={`fan-svg ${lit ? 'hovering' : ''}`}

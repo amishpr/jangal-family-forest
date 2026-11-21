@@ -71,6 +71,9 @@ behind it, the library choices, and the bugs that came up along the way are in
   - *Poster PDF:* the whole tree from Letter up to 24 by 36 inches, with optional profile pages.
     The text is real text, so it can be searched and copied.
   - *Picture:* PNG or SVG.
+  - *Print:* the Timeline and the Fan chart each have a Print button. They print on clean
+    paper, in the light colors, and "Save as PDF" in the print window makes a PDF. The timeline
+    runs over as many pages as it needs.
   - *Backup file:* everything, photos included, as a `.jangal.json` file that loads back in.
   - *Spreadsheet:* one row per person, with parents and partners, as an Excel file (with
     dropdowns and an instructions tab) or as CSV. It imports back in.
