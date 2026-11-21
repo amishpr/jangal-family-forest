@@ -69,7 +69,7 @@ export default function AskSheet() {
     `The link below opens a short form with ${filled} already filled in. You can fix anything that's wrong, add birthdays and places, and add a photo if you'd like. It takes about five minutes, and nothing you type is uploaded.`,
     url,
     "When you're done, the page saves your answers as a small file for you to send back to me.",
-    `Thanks,\n${from.name.trim()}`,
+    `Thank you,\n${from.name.trim()}`,
   ].join('\n\n')
   const ready = !!from.name.trim() && !!url
   const canShare = typeof navigator.share === 'function'

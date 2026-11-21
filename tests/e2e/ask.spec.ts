@@ -28,7 +28,7 @@ test('a relative fills in the link, and the reply joins the tree with the picked
   // The message reads as a letter from you, with the link deflated on its own line
   const msg = sheet.locator('.ask-msg')
   await expect(msg).toContainText('/add/#z=')
-  await expect(msg).toContainText(/^Hello Kareena,[\s\S]*your name and Saif Ali's already filled in[\s\S]*Thanks,\s*Ranbir$/)
+  await expect(msg).toContainText(/^Hello Kareena,[\s\S]*your name and Saif Ali's already filled in[\s\S]*Thank you,\s*Ranbir$/)
   const mail = new URL((await sheet.getByRole('link', { name: 'Email it' }).getAttribute('href'))!)
   expect(mail.searchParams.get('subject')).toBe('Kareena, can you help with The Kapoor Family tree?')
   const url = (await msg.textContent())!.match(/https?:\/\/\S+/)![0]
