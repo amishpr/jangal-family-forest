@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from '../../app/actions'
 import { useHome, useIndex, useTitle } from '../../app/derive'
-import { askLinkFor, askUrl } from '../../core/askLink'
+import { askLinkFor, askUrl, type AskLink } from '../../core/askLink'
 import { useTree } from '../../store/treeStore'
 import { useUi } from '../../store/uiStore'
 import { Copy, Envelope, Info, ShareNetwork } from '../../ui/icons'
@@ -42,15 +42,36 @@ export default function AskSheet() {
   const home = useHome()
   const [from, setFrom] = useState<From>(() => readFrom() ?? { name: (home && ix?.person(home)?.firstName) || '', email: '' })
   const person = id && ix ? ix.person(id) : undefined
-  if (!person || !ix || !treeId) return null
+  const link = person && ix && treeId ? askLinkFor(ix, { id: treeId, title }, person.id, from) : null
+  // The link is deflated, which the browser does asynchronously, so it follows a moment behind
+  const key = link ? JSON.stringify(link) : ''
+  const [url, setUrl] = useState('')
+  useEffect(() => {
+    if (!key) return
+    let live = true
+    void askUrl(JSON.parse(key) as AskLink, location.origin, import.meta.env.BASE_URL).then((u) => live && setUrl(u))
+    return () => {
+      live = false
+    }
+  }, [key])
+  if (!person || !link) return null
 
   const first = person.firstName || 'them'
-  const link = askLinkFor(ix, { id: treeId, title }, person.id, from)
-  const url = askUrl(link, location.origin, import.meta.env.BASE_URL)
-  const message = `Hi ${first}, I'm putting together our family tree. Could you check your details and add a photo? It takes about five minutes, and nothing is uploaded: ${url}`
   const others = link.families.flatMap((f) => [f.partner, ...f.children]).filter((x) => x !== undefined).map((x) => x.first)
   const holds = `The link holds ${first}'s name${others.length ? `, the names of ${and(others)},` : ''} and the tree's title${title ? `, ${title}` : ''}. No dates, places, notes or photos. Anyone ${first} forwards it to can see those names.`
-  const ready = !!from.name.trim()
+  // Written like a letter from you: a short note with a bare link was getting marked as spam
+  const tree = !title ? 'our family tree' : /^the /i.test(title) ? `${title} tree` : `the ${title} tree`
+  const subject = `${person.firstName ? `${person.firstName}, can` : 'Can'} you help with ${tree}?`
+  const filled = others.length === 0 ? 'your name' : others.length === 1 ? `your name and ${others[0]}'s` : `your name and the names of ${and(others)}`
+  const message = [
+    person.firstName ? `Hello ${person.firstName},` : 'Hello,',
+    `I'm putting together a family tree for ${title || 'our family'}, and I'd love your help with your part of it.`,
+    `The link below opens a short form with ${filled} already filled in. You can fix anything that's wrong, add birthdays and places, and add a photo if you'd like. It takes about five minutes, and nothing you type is uploaded.`,
+    url,
+    "When you're done, the page saves your answers as a small file for you to send back to me.",
+    `Thanks,\n${from.name.trim()}`,
+  ].join('\n\n')
+  const ready = !!from.name.trim() && !!url
   const canShare = typeof navigator.share === 'function'
 
   const update = (patch: Partial<From>) => {
@@ -60,7 +81,7 @@ export default function AskSheet() {
   }
   const share = async () => {
     try {
-      await navigator.share({ title: 'Our family tree', text: message })
+      await navigator.share({ title: subject, text: message })
     } catch (err) {
       if ((err as Error)?.name !== 'AbortError') toast("The link couldn't be shared. Copy it instead.")
     }
@@ -134,7 +155,8 @@ export default function AskSheet() {
           Copy link
         </button>
         {ready ? (
-          <a className="chunky" href={`mailto:?subject=${encodeURIComponent('Our family tree')}&body=${encodeURIComponent(message)}`}>
+          // Mail links want CRLF line breaks (RFC 6068)
+          <a className="chunky" href={`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message.replace(/\n/g, '\r\n'))}`}>
             <Envelope />
             Email it
           </a>

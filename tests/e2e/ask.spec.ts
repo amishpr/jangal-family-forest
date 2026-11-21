@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { inflateSync } from 'node:zlib'
 import { dock, find, openSample, tile } from './helpers'
 
 // SHARE.md: asking a relative to fill in their own details through a link, and importing the reply
@@ -24,8 +25,14 @@ test('a relative fills in the link, and the reply joins the tree with the picked
   await expect(sheet.getByRole('heading', { name: 'Ask Kareena to fill in' })).toBeVisible()
   await expect(sheet.getByLabel('Your name')).toHaveValue('Ranbir')
   await expect(sheet.locator('.ask-holds')).toContainText("Kareena's name, the names of Saif Ali, and the tree's title, The Kapoor Family")
-  const url = (await sheet.locator('.ask-msg').textContent())!.match(/https?:\/\/\S+/)![0]
-  const carried = Buffer.from(new URL(url).hash.replace(/^#a=/, ''), 'base64url').toString('utf8')
+  // The message reads as a letter from you, with the link deflated on its own line
+  const msg = sheet.locator('.ask-msg')
+  await expect(msg).toContainText('/add/#z=')
+  await expect(msg).toContainText(/^Hello Kareena,[\s\S]*your name and Saif Ali's already filled in[\s\S]*Thanks,\s*Ranbir$/)
+  const mail = new URL((await sheet.getByRole('link', { name: 'Email it' }).getAttribute('href'))!)
+  expect(mail.searchParams.get('subject')).toBe('Kareena, can you help with The Kapoor Family tree?')
+  const url = (await msg.textContent())!.match(/https?:\/\/\S+/)![0]
+  const carried = inflateSync(Buffer.from(new URL(url).hash.replace(/^#z=/, ''), 'base64url')).toString('utf8')
   expect(carried).toContain('Saif Ali')
   expect(carried).not.toMatch(/1980|Bombay|Actor|photo/)
 

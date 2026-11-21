@@ -115,6 +115,7 @@ for (const scheme of ['light', 'dark'] as const) {
       await tile(page, 'randhir').click()
       await page.locator('.pop').getByRole('button', { name: 'Make a link' }).click()
       await page.locator('.ask-sheet').waitFor()
+      await expect(page.locator('.ask-msg')).toContainText('/add/#')
       // Find left the path to Randhir lit and everyone else dimmed on purpose, so only the sheet is scanned
       expect(await scan(page, '.react-flow'), 'Ask sheet').toEqual([])
       const url = (await page.locator('.ask-msg').textContent())!.match(/https?:\/\/\S+/)![0]

@@ -62,8 +62,20 @@ const fromBase64Url = (s: string) => {
 /** JSON, then UTF-8, then base64url, so names in any script survive being pasted around */
 export const encodeAskLink = (link: AskLink) => toBase64Url(new TextEncoder().encode(JSON.stringify(link)))
 
-/** The page's address with the link after the "#". base is the site's base path, like "/" */
-export const askUrl = (link: AskLink, origin: string, base = '/') => `${origin}${base}add/#a=${encodeAskLink(link)}`
+/** Bytes through the browser's own deflate, one way or the other */
+const deflate = async (bytes: Uint8Array, stream: CompressionStream | DecompressionStream) =>
+  new Uint8Array(await new Response(new Blob([bytes as BlobPart]).stream().pipeThrough(stream)).arrayBuffer())
+
+/**
+ * The page's address with the link after the "#". base is the site's base path, like "/". The link
+ * is deflated first ("#z="), which makes it 40 to 50% shorter: a long link of random letters is
+ * what spam filters look for. A browser without CompressionStream sends it as it is ("#a=").
+ */
+export async function askUrl(link: AskLink, origin: string, base = '/') {
+  const page = `${origin}${base}add/#`
+  if (typeof CompressionStream === 'undefined') return `${page}a=${encodeAskLink(link)}`
+  return `${page}z=${toBase64Url(await deflate(new TextEncoder().encode(JSON.stringify(link)), new CompressionStream('deflate')))}`
+}
 
 const str = (v: unknown, max = MAX_NAME): string | undefined => (typeof v === 'string' && v.trim() ? v.trim().slice(0, max) : undefined)
 const id = (v: unknown) => (typeof v === 'string' && /^[\w-]{1,80}$/.test(v) ? v : undefined)
@@ -78,13 +90,17 @@ function person(v: unknown): AskPerson | undefined {
   return { id: pid, first, ...(last ? { last } : {}) }
 }
 
-/** The link from a page's address ("#a=…"), or null for anything that isn't a whole, good link */
-export function decodeAskLink(hash: string): AskLink | null {
-  const raw = /(?:^#?|&)a=([A-Za-z0-9_-]+)/.exec(hash)?.[1]
+/**
+ * The link from a page's address ("#z=…" deflated, or "#a=…" from before links were), or null for
+ * anything that isn't a whole, good link. A link cut short fails to inflate, so it's null too.
+ */
+export async function decodeAskLink(hash: string): Promise<AskLink | null> {
+  const [, kind, raw] = /(?:^#?|&)([az])=([A-Za-z0-9_-]+)/.exec(hash) ?? []
   if (!raw) return null
   let o: Record<string, unknown>
   try {
-    o = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(fromBase64Url(raw)))
+    const bytes = kind === 'z' ? await deflate(fromBase64Url(raw), new DecompressionStream('deflate')) : fromBase64Url(raw)
+    o = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes))
   } catch {
     return null
   }

@@ -171,11 +171,22 @@ function Frame({ children }: { children: ReactNode }) {
 
 /** A link that was cut off or changed: nothing to fill in */
 export function BadLink() {
+  // Links are deflated (askLink.ts), and browsers before 2023 can't inflate them
+  const old = /(?:^#?|&)z=/.test(location.hash) && typeof DecompressionStream === 'undefined'
   return (
     <Frame>
       <section className="add-sec add-note">
-        <h1>This link didn't come through whole</h1>
-        <p>Part of it may have been cut off when it was copied. Ask whoever sent it for a new one, and tap the whole link.</p>
+        {old ? (
+          <>
+            <h1>This browser is too old for this page</h1>
+            <p>Update your phone or computer, or open the link in a current version of Chrome, Safari or Firefox.</p>
+          </>
+        ) : (
+          <>
+            <h1>This link didn't come through whole</h1>
+            <p>Part of it may have been cut off when it was copied. Ask whoever sent it for a new one, and tap the whole link.</p>
+          </>
+        )}
       </section>
     </Frame>
   )

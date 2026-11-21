@@ -28,28 +28,36 @@ describe('the fill-in link', () => {
     expect(JSON.stringify(link)).not.toMatch(/birth|notes|photo/)
   })
 
-  it('comes back the same from the address, Gujarati names included', () => {
+  it('comes back the same from the address, deflated, Gujarati names included', async () => {
     const link = askLinkFor(indexOf(tree()), { id: 'tree1', title: 'The Kapoor Family' }, 'kareena', { name: 'Ranbir', email: 'r@example.com' })
-    const url = askUrl(link, 'https://jangal.example', '/')
-    expect(url).toMatch(/^https:\/\/jangal\.example\/add\/#a=[\w-]+$/)
-    expect(decodeAskLink(new URL(url).hash)).toEqual(link)
+    const url = await askUrl(link, 'https://jangal.example', '/')
+    expect(url).toMatch(/^https:\/\/jangal\.example\/add\/#z=[\w-]+$/)
+    expect(await decodeAskLink(new URL(url).hash)).toEqual(link)
+    // Shorter than the link as it was, so it looks less like spam
+    expect(new URL(url).hash.length).toBeLessThan(encodeAskLink(link).length * 0.8)
+    // Links sent before they were deflated still open
+    expect(await decodeAskLink(`#a=${encodeAskLink(link)}`)).toEqual(link)
   })
 
-  it('reads nothing from a link that is cut off, made up, or the wrong shape', () => {
-    const good = encodeAskLink(askLinkFor(indexOf(tree()), { id: 'tree1', title: 'T' }, 'kareena', { name: 'Ranbir' }))
-    expect(decodeAskLink('')).toBeNull()
-    expect(decodeAskLink('#a=')).toBeNull()
-    expect(decodeAskLink(`#a=${good.slice(0, -12)}`)).toBeNull()
-    expect(decodeAskLink('#a=bm90IGpzb24')).toBeNull()
+  it('reads nothing from a link that is cut off, made up, or the wrong shape', async () => {
+    const link = askLinkFor(indexOf(tree()), { id: 'tree1', title: 'T' }, 'kareena', { name: 'Ranbir' })
+    const good = encodeAskLink(link)
+    const zipped = new URL(await askUrl(link, 'https://jangal.example')).hash
+    expect(await decodeAskLink('')).toBeNull()
+    expect(await decodeAskLink('#a=')).toBeNull()
+    expect(await decodeAskLink(`#a=${good.slice(0, -12)}`)).toBeNull()
+    expect(await decodeAskLink(zipped.slice(0, -12))).toBeNull()
+    expect(await decodeAskLink('#a=bm90IGpzb24')).toBeNull()
+    expect(await decodeAskLink('#z=bm90IGpzb24')).toBeNull()
     const enc = (o: unknown) => `#a=${encodeAskLink(o as AskLink)}`
-    expect(decodeAskLink(enc({ v: 2, tree: { id: 't' }, from: { name: 'R' }, person: { id: 'p', first: 'P' }, families: [] }))).toBeNull()
-    expect(decodeAskLink(enc({ v: 1, tree: { id: 't' }, from: { name: 'R' }, person: { id: '../x', first: 'P' }, families: [] }))).toBeNull()
+    expect(await decodeAskLink(enc({ v: 2, tree: { id: 't' }, from: { name: 'R' }, person: { id: 'p', first: 'P' }, families: [] }))).toBeNull()
+    expect(await decodeAskLink(enc({ v: 1, tree: { id: 't' }, from: { name: 'R' }, person: { id: '../x', first: 'P' }, families: [] }))).toBeNull()
   })
 
-  it('keeps what it reads in bounds', () => {
+  it('keeps what it reads in bounds', async () => {
     const kids = Array.from({ length: 50 }, (_, i) => ({ id: `k${i}`, first: 'K'.repeat(500) }))
     const odd = { v: 1, tree: { id: 't', title: 7 }, from: { name: 'R', email: 'not an email' }, person: { id: 'p', first: 'P' }, families: [{ status: 'feuding', children: [...kids, { id: 'x' }, 'junk'] }] }
-    const link = decodeAskLink(`#a=${encodeAskLink(odd as unknown as AskLink)}`)!
+    const link = (await decodeAskLink(`#a=${encodeAskLink(odd as unknown as AskLink)}`))!
     expect(link.tree.title).toBe('')
     expect(link.from).toEqual({ name: 'R' })
     expect(link.families[0].status).toBeUndefined()

@@ -11,6 +11,6 @@ import { AddPage, BadLink } from './AddPage'
 // The fill-in page (SHARE.md SH-4): its own small page, not the app, so a relative never loads the
 // tree app, its database or its service worker. Everything it needs comes from the link.
 
-const link = decodeAskLink(location.hash)
-
-createRoot(document.getElementById('root')!).render(<StrictMode>{link ? <AddPage link={link} /> : <BadLink />}</StrictMode>)
+void decodeAskLink(location.hash).then((link) =>
+  createRoot(document.getElementById('root')!).render(<StrictMode>{link ? <AddPage link={link} /> : <BadLink />}</StrictMode>),
+)

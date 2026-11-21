@@ -736,6 +736,8 @@
     font-weight: 500;
     color: var(--ink-2);
     overflow-wrap: anywhere;
+    /* The message is a short letter, in paragraphs */
+    white-space: pre-line;
     user-select: text;
   }
   a.chunky {
